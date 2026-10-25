@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Simple Browser Copy Pasta is a lightweight Chrome extension for saving and copying rich-text snippets locally." />
+  <meta name="theme-color" content="#f7fafc" />
+  <title>Simple Browser Copy Pasta — Local snippets for Chrome</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --card: #ffffff;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --accent: #2979ff;
+      --accent-soft: #eff6ff;
+      --border: rgba(15, 23, 42, 0.08);
+      --radius: 14px;
+      --shadow: 0 8px 30px rgba(16, 24, 40, 0.08);
+      --max-width: 980px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 44px 18px;
+      color: var(--fg);
+      background: linear-gradient(180deg, var(--bg), #ffffff 65%);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); }
+    .wrap { width: 100%; max-width: var(--max-width); margin: 0 auto; }
+    .site-header { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      display: grid;
+      width: 68px;
+      height: 68px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      color: var(--accent);
+      font-size: 32px;
+    }
+    h1 { margin: 0; font-size: clamp(22px, 4vw, 30px); line-height: 1.15; }
+    .tagline { margin: 7px 0 0; color: var(--muted); font-size: 15px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(270px, 0.85fr);
+      gap: 22px;
+      align-items: stretch;
+      margin-top: 25px;
+    }
+    .card {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .lead { margin: 0; font-size: 17px; line-height: 1.6; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .button {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--accent);
+      background: var(--card);
+      font-weight: 650;
+      text-decoration: none;
+    }
+    .button.primary {
+      border-color: var(--accent);
+      color: #ffffff;
+      background: var(--accent);
+      box-shadow: 0 5px 16px rgba(41, 121, 255, 0.2);
+    }
+    .button:hover { filter: brightness(0.97); }
+    .local-note { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+    h2 { margin: 0; font-size: 19px; }
+    h3 { margin: 0; font-size: 16px; }
+    .feature-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 14px; margin-top: 19px; }
+    .feature { display: flex; align-items: flex-start; gap: 10px; }
+    .feature-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      font-size: 18px;
+    }
+    .feature h3 { font-size: 14px; }
+    .feature p, .muted { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .sample-card { display: flex; flex-direction: column; gap: 14px; }
+    .sample-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .snippet {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+    .snippet-name { margin: 0; font-size: 14px; }
+    .snippet-text { margin: 9px 0 12px; color: #475569; font-size: 13px; line-height: 1.55; }
+    .fake-copy {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 7px;
+      color: #ffffff;
+      background: var(--accent);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .sample-caption { margin: auto 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .install {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 290px;
+      gap: 22px;
+      margin-top: 24px;
+    }
+    .steps { display: grid; gap: 10px; margin-top: 15px; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+    }
+    .step-number {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .step p { margin: 3px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #eef2ff;
+      color: #1e293b;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+    }
+    .privacy-card { display: flex; flex-direction: column; gap: 13px; }
+    .privacy-point { padding: 12px; border: 1px solid var(--border); border-radius: 10px; }
+    .privacy-point strong { display: block; font-size: 13px; }
+    .privacy-point p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .site-footer { padding: 25px 8px 4px; color: var(--muted); font-size: 12px; text-align: center; }
+    .site-footer p { margin: 6px 0 0; }
+
+    @media (max-width: 760px) {
+      body { padding: 28px 14px; }
+      .hero, .install { grid-template-columns: 1fr; }
+      .privacy-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .privacy-card h2 { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      .site-header { align-items: flex-start; gap: 12px; }
+      .logo { width: 54px; height: 54px; border-radius: 14px; font-size: 26px; }
+      .tagline { font-size: 13px; }
+      .card { padding: 17px; }
+      .feature-list, .privacy-card { grid-template-columns: 1fr; }
+      .privacy-card h2 { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header">
+      <div class="logo" aria-hidden="true">✂️</div>
+      <div>
+        <h1>Simple Browser Copy Pasta</h1>
+        <p class="tagline">Your favorite reusable text, ready to copy — right in your browser.</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="hero">
+        <section class="card" aria-labelledby="about-title">
+          <h2 id="about-title">A simple home for your snippets</h2>
+          <p class="lead">Save named messages, templates, and other copy-pasta with rich text and emoji support. Preview each entry, then copy it when you need it.</p>
+          <div class="cta-row">
+            <a class="button primary" href="https://github.com/skywalker94/SimpleBrowserCopyPasta/releases">⏬ Get the extension</a>
+            <a class="button" href="https://github.com/skywalker94/SimpleBrowserCopyPasta">View on GitHub</a>
+          </div>
+          <p class="local-note">Private by design: your snippets are stored locally in your browser, with no cloud sync.</p>
+
+          <div class="feature-list">
+            <article class="feature">
+              <div class="feature-icon" aria-hidden="true">🗂️</div>
+              <div><h3>Named entries</h3><p>Keep snippets organized with a title and a quick text preview.</p></div>
+            </article>
+            <article class="feature">
+              <div class="feature-icon" aria-hidden="true">✨</div>
+              <div><h3>Rich text & emoji</h3><p>Format text, make lists, and keep emojis in your snippets.</p></div>
+            </article>
+            <article class="feature">
+              <div class="feature-icon" aria-hidden="true">📋</div>
+              <div><h3>Quick copy</h3><p>Copy a saved entry as rich text where supported, or as plain text.</p></div>
+            </article>
+            <article class="feature">
+              <div class="feature-icon" aria-hidden="true">🌗</div>
+              <div><h3>Organized & simple</h3><p>Use optional categories to group entries. Rename five fixed color groups and filter the list; leave an entry uncategorized (gray) if you prefer.</p></div>
+            </article>
+          </div>
+        </section>
+
+        <aside class="card sample-card" aria-label="Example saved entry">
+          <span class="sample-label">A glimpse inside</span>
+          <div class="snippet">
+            <h3 class="snippet-name">A friendly follow-up</h3>
+            <p class="snippet-text"><strong>Hi there!</strong> Just checking in on this. Whenever you have a moment, let me know what you think. 😊<br><br>Thanks so much!</p>
+            <span class="fake-copy">Copy</span>
+          </div>
+          <p class="sample-caption">Give entries a useful name, see a short preview, and copy the complete text in one click.</p>
+        </aside>
+      </div>
+
+      <section class="install" aria-label="Setup and privacy">
+        <div class="card">
+          <h2>Quick setup</h2>
+          <p class="muted">Load the extension directly in Chrome. The unpacked folder must contain <code>manifest.json</code>.</p>
+          <div class="steps">
+            <div class="step"><span class="step-number">1</span><p>Download and extract the latest ZIP from the <a href="https://github.com/skywalker94/SimpleBrowserCopyPasta/releases">GitHub releases</a>.</p></div>
+            <div class="step"><span class="step-number">2</span><p>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong>.</p></div>
+            <div class="step"><span class="step-number">3</span><p>Select <strong>Load unpacked</strong> and choose the extracted extension folder.</p></div>
+            <div class="step"><span class="step-number">4</span><p>Open the extension from Chrome’s toolbar and create your first entry.</p></div>
+          </div>
+        </div>
+
+        <aside class="card privacy-card" aria-labelledby="privacy-title">
+          <h2 id="privacy-title">Local and lightweight</h2>
+          <div class="privacy-point"><strong>Stored on this browser</strong><p>Entries and theme preference use <code>chrome.storage.local</code>.</p></div>
+          <div class="privacy-point"><strong>No cloud or tracking</strong><p>No analytics, remote scripts, or server-side snippet storage.</p></div>
+          <div class="privacy-point"><strong>Only what it needs</strong><p>The extension uses local storage and clipboard access for its features.</p></div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>Made with ❤️ — privacy-minded by design.</div>
+      <p><a href="https://github.com/skywalker94/SimpleBrowserCopyPasta">Source and project updates on GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>

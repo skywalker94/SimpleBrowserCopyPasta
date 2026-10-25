@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Browser Copy Pasta</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✂</span>
+        <h1>Copy Pasta</h1>
+      </div>
+      <label class="theme-control" title="Toggle light/dark theme">
+        <span class="sr-only">Dark theme</span>
+        <input type="checkbox" id="themeToggle" />
+        <span class="theme-slider" aria-hidden="true"></span>
+      </label>
+    </header>
+
+    <main class="main">
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <section id="listView" aria-label="Saved entries">
+        <div class="section-heading">
+          <div>
+            <h2>Your snippets</h2>
+            <p class="muted">Saved only in this browser.</p>
+          </div>
+          <button id="addEntry" class="button primary" type="button">＋ New entry</button>
+        </div>
+        <div id="categoryFilters" class="category-filters" role="group" aria-label="Filter snippets by category"></div>
+        <div class="category-tools">
+          <button id="manageCategories" class="button quiet" type="button">Rename categories</button>
+        </div>
+        <div id="entryList" class="entry-list"></div>
+        <p id="emptyState" class="empty-state" hidden>No snippets yet. Add one to get started.</p>
+      </section>
+
+      <section id="editorView" aria-label="Edit snippet" hidden>
+        <form id="entryForm">
+          <div class="section-heading editor-heading">
+            <h2 id="editorHeading">New entry</h2>
+            <button id="cancelEdit" class="button quiet" type="button">Cancel</button>
+          </div>
+          <label class="field-label" for="entryName">Entry name</label>
+          <input id="entryName" class="name-input" type="text" maxlength="50"
+            placeholder="e.g. Friendly email sign-off" required />
+          <label class="field-label" for="entryCategory">Category</label>
+          <select id="entryCategory" class="category-select">
+            <option value="">No category</option>
+          </select>
+          <label class="field-label" id="contentLabel">Text</label>
+          <div class="toolbar" role="toolbar" aria-label="Text formatting">
+            <button type="button" data-command="bold" aria-label="Bold" title="Bold"><strong>B</strong></button>
+            <button type="button" data-command="italic" aria-label="Italic" title="Italic"><em>I</em></button>
+            <button type="button" data-command="underline" aria-label="Underline" title="Underline"><u>U</u></button>
+            <button type="button" data-command="strikeThrough" aria-label="Strikethrough" title="Strikethrough"><s>S</s></button>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list">• List</button>
+            <button type="button" data-command="insertOrderedList" aria-label="Numbered list" title="Numbered list">1. List</button>
+          </div>
+          <div id="entryContent" class="content-editor" contenteditable="true" role="textbox"
+            aria-labelledby="contentLabel" aria-multiline="true" data-placeholder="Write or paste your text here. Emojis work too!"></div>
+          <div class="editor-actions">
+            <button class="button primary" type="submit">Save entry</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <footer class="footer">Your snippets never leave this browser.</footer>
+  </div>
+
+  <div id="deleteDialog" class="dialog-backdrop" hidden>
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true"
+      aria-labelledby="deleteDialogTitle" aria-describedby="deleteDialogMessage">
+      <h2 id="deleteDialogTitle">Delete entry?</h2>
+      <p id="deleteDialogMessage" class="muted"></p>
+      <div class="dialog-actions">
+        <button id="cancelDelete" class="button" type="button">Cancel</button>
+        <button id="confirmDelete" class="button delete-confirm" type="button">Delete</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="categoryDialog" class="dialog-backdrop" hidden>
+    <section class="confirm-dialog category-dialog" role="dialog" aria-modal="true"
+      aria-labelledby="categoryDialogTitle">
+      <h2 id="categoryDialogTitle">Rename categories</h2>
+      <p class="muted">These preset categories and their colors stay fixed. You can rename them, but not add or remove them.</p>
+      <form id="categoryForm">
+        <label class="field-label" for="categoryNameWork">Blue category</label>
+        <input id="categoryNameWork" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNamePersonal">Green category</label>
+        <input id="categoryNamePersonal" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameSocial">Purple category</label>
+        <input id="categoryNameSocial" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameIdeas">Ochre category</label>
+        <input id="categoryNameIdeas" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameFollowup">Orange category</label>
+        <input id="categoryNameFollowup" class="name-input category-name-input" type="text" maxlength="24" />
+        <p id="categoryError" class="dialog-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button id="cancelCategories" class="button" type="button">Cancel</button>
+          <button class="button primary" type="submit">Save names</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
