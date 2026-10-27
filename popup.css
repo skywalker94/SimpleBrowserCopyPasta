@@ -33,14 +33,58 @@ button { color: inherit; }
 .container { display: flex; height: 100%; min-height: 0; flex-direction: column; overflow: hidden; }
 
 .topbar {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  overflow: hidden;
   min-height: 54px;
   padding: 8px 14px;
   border-bottom: 1px solid var(--border);
 }
 
+.header-sky { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; user-select: none; }
+.sky-cloud, .sky-star { position: absolute; pointer-events: none; user-select: none; }
+.sky-cloud { top: 50%; opacity: 0.62; font-size: 19px; line-height: 1; transform: translateY(-50%); }
+.cloud-one { animation: cloud-drift 66s linear -1s infinite; }
+.cloud-two { top: 28%; opacity: 0.44; font-size: 15px; animation: cloud-drift 69s linear -6.9s infinite; }
+.cloud-three { top: 72%; opacity: 0.5; font-size: 17px; animation: cloud-drift 72s linear -13.32s infinite; }
+.cloud-four { top: 18%; opacity: 0.38; font-size: 13px; animation: cloud-drift 63s linear -17.01s infinite; }
+.cloud-five { top: 82%; opacity: 0.55; font-size: 16px; animation: cloud-drift 75s linear -26.63s infinite; }
+.cloud-six { top: 58%; opacity: 0.48; font-size: 14px; animation: cloud-drift 68s linear -29.92s infinite; }
+.cloud-seven { top: 38%; opacity: 0.52; font-size: 18px; animation: cloud-drift 71s linear -37.28s infinite; }
+.cloud-eight { top: 12%; opacity: 0.4; font-size: 14px; animation: cloud-drift 64s linear -39.04s infinite; }
+.cloud-nine { top: 64%; opacity: 0.58; font-size: 20px; animation: cloud-drift 73s linear -50.74s infinite; }
+.cloud-ten { top: 34%; opacity: 0.46; font-size: 16px; animation: cloud-drift 67s linear -52.26s infinite; }
+.cloud-eleven { top: 88%; opacity: 0.42; font-size: 13px; animation: cloud-drift 70s linear -60.55s infinite; }
+.cloud-twelve { top: 48%; opacity: 0.54; font-size: 17px; animation: cloud-drift 65s linear -61.75s infinite; }
+@keyframes cloud-drift {
+  from { left: -34px; }
+  to { left: calc(100% + 34px); }
+}
+.sky-star { opacity: 0; color: #ffe28a; font-size: 12px; }
+.star-one { top: 8px; left: 18%; --star-brightness: 0.48; animation: star-twinkle 4.8s ease-in-out 0.1s infinite; }
+.star-two { top: 26px; left: 37%; --star-brightness: 0.62; font-size: 10px; animation: star-twinkle 5.7s ease-in-out 2.65s infinite; }
+.star-three { top: 7px; left: 59%; --star-brightness: 0.38; font-size: 11px; animation: star-twinkle 6.2s ease-in-out 0.35s infinite; }
+.star-four { top: 25px; left: 75%; --star-brightness: 0.55; font-size: 10px; animation: star-twinkle 5.2s ease-in-out 3.9s infinite; }
+.star-five { top: 8px; left: 88%; --star-brightness: 0.7; font-size: 13px; animation: star-twinkle 6.8s ease-in-out 0.5s infinite; }
+.star-six { top: 32px; left: 52%; --star-brightness: 0.42; font-size: 9px; animation: star-twinkle 5.5s ease-in-out 3.85s infinite; }
+.star-seven { top: 17px; left: 7%; --star-brightness: 0.58; font-size: 9px; animation: star-twinkle 6.4s ease-in-out 0.3s infinite; }
+.star-eight { top: 5px; left: 29%; --star-brightness: 0.35; font-size: 10px; animation: star-twinkle 5.9s ease-in-out 2.95s infinite; }
+.star-nine { top: 34px; left: 23%; --star-brightness: 0.64; font-size: 11px; animation: star-twinkle 6.6s ease-in-out 0.8s infinite; }
+.star-ten { top: 18px; left: 46%; --star-brightness: 0.45; font-size: 9px; animation: star-twinkle 5.1s ease-in-out 3.57s infinite; }
+.star-eleven { top: 32px; left: 67%; --star-brightness: 0.52; font-size: 10px; animation: star-twinkle 6.1s ease-in-out 0.2s infinite; }
+.star-twelve { top: 5px; left: 80%; --star-brightness: 0.32; font-size: 8px; animation: star-twinkle 5.8s ease-in-out 3.25s infinite; }
+.star-thirteen { top: 37px; left: 92%; --star-brightness: 0.6; font-size: 9px; animation: star-twinkle 6.9s ease-in-out 0.7s infinite; }
+.star-fourteen { top: 36px; left: 13%; --star-brightness: 0.4; font-size: 9px; animation: star-twinkle 5.4s ease-in-out 2.7s infinite; }
+.star-fifteen { top: 18px; left: 82%; --star-brightness: 0.68; font-size: 8px; animation: star-twinkle 6.3s ease-in-out 0.4s infinite; }
+.star-sixteen { top: 14px; left: 67%; --star-brightness: 0.5; font-size: 8px; animation: star-twinkle 5.6s ease-in-out 3.73s infinite; }
+@keyframes star-twinkle {
+  0%, 88%, 100% { opacity: 0; transform: scale(0.55) rotate(-18deg); }
+  92%, 96% { opacity: var(--star-brightness, 0.5); transform: scale(1) rotate(12deg); }
+}
+.brand, .theme-picker { position: relative; z-index: 1; }
 .brand { display: flex; align-items: center; gap: 9px; }
 .brand-logo { display: block; width: 32px; height: 32px; object-fit: contain; }
 h1 { margin: 0; font-size: 16px; font-weight: 650; }
@@ -362,6 +406,8 @@ body.dark {
   --scrollbar-thumb: #414852;
   --scrollbar-thumb-hover: #596372;
 }
+body.dark .sky-cloud { display: none; }
+body:not(.dark) .sky-star { display: none; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -375,5 +421,6 @@ body.dark {
 
 @media (prefers-reduced-motion: reduce) {
   .theme-icons span { transition: none; animation: none !important; }
+  .header-sky { display: none; }
   .mascot { display: none; }
 }

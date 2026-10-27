@@ -16,6 +16,7 @@ The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https:/
 - Optionally assign one of five fixed categories—**Work** (blue), **Ideas** (gold/yellow), **Social** (purple), **Follow-up** (orange), and **Personal** (green)—or leave it as **None**. Categories can be renamed, disabled, or re-enabled; they cannot be added or removed.
 - Filter entries by category, including entries with **None**.
 - Enjoy animated sun/moon theme icons and occasional cats in light mode or owls in dark mode. One mascot appears at a random position for 2–3 seconds; click it to dismiss it sooner. Mascots respect reduced-motion preferences.
+- See slow, looping cloud emojis in the daytime header and softly twinkling stars at night; the decorative sky is non-interactive and respects reduced-motion preferences.
 - Format text with bold, italic, underline, strikethrough, and lists.
 - Keep common pasted formatting and emojis in saved snippets.
 - Preview a shortened plain-text glimpse of each entry.
