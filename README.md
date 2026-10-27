@@ -2,11 +2,11 @@
 
 A lightweight Chrome extension for keeping reusable text snippets close at hand. Save named entries with basic rich-text formatting and emoji, preview them at a glance, and copy their contents when needed.
 
+Project: [GitHub repository](https://github.com/skywalker94/SimpleBrowserCopyPasta) · [GitHub Pages site](https://skywalker94.github.io/SimpleBrowserCopyPasta/)
+
 ## Website
 
-The static project page is intended to be served at [skywalker94.github.io/SimpleBrowserCopyPasta](https://skywalker94.github.io/SimpleBrowserCopyPasta/). Its source is [`index.html`](./index.html). Enable GitHub Pages for this repository and publish from the repository root for that URL to become available.
-
-The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https://github.com/skywalker94/SimpleBrowserCopyPasta), with downloadable builds on the [releases page](https://github.com/skywalker94/SimpleBrowserCopyPasta/releases).
+The static landing page is [`index.html`](./index.html). To publish it, enable GitHub Pages for `skywalker94/SimpleBrowserCopyPasta` and select the repository root as the source. The published URL is <https://skywalker94.github.io/SimpleBrowserCopyPasta/>.
 
 ## Features
 
@@ -15,8 +15,8 @@ The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https:/
 - Delete empty entries immediately; entries with text still show a confirmation prompt.
 - Optionally assign one of five fixed categories—**Work** (blue), **Ideas** (gold/yellow), **Social** (purple), **Follow-up** (orange), and **Personal** (green)—or leave it as **None**. Categories can be renamed, disabled, or re-enabled; they cannot be added or removed.
 - Filter entries by category, including entries with **None**.
-- Enjoy animated sun/moon theme icons and occasional cats in light mode or owls in dark mode. One mascot appears at a random position for 2–3 seconds; click it to dismiss it sooner. Mascots respect reduced-motion preferences.
-- See slow, looping cloud emojis in the daytime header and softly twinkling stars at night; the decorative sky is non-interactive and respects reduced-motion preferences.
+- Enjoy animated sun/moon theme icons, slowly drifting clouds in light mode, and softly twinkling stars in dark mode.
+- Play a tiny optional whack-a-mole with occasional cats in light mode or owls in dark mode: one appears at a random position for 2–3 seconds and can be clicked to dismiss. Sky decorations and mascots respect reduced-motion preferences.
 - Format text with bold, italic, underline, strikethrough, and lists.
 - Keep common pasted formatting and emojis in saved snippets.
 - Preview a shortened plain-text glimpse of each entry.
@@ -48,7 +48,7 @@ When available, Copy places both HTML and plain text on the clipboard. The plain
 
 ## Local storage and privacy
 
-Entries and the theme preference are stored with `chrome.storage.local`, which is scoped to this extension in this browser profile. The extension does not request host access and does not include analytics, cloud sync, or remote scripts. Removing the extension may remove its locally stored data.
+Entries, category names, and the theme preference are stored with `chrome.storage.local`, which is scoped to this extension in this browser profile. The extension requests only local storage and clipboard access; it does not request host access or include analytics, cloud sync, or remote scripts. Removing the extension may remove its locally stored data.
 
 The editor accepts common formatting and safe links. Pasted and saved HTML is filtered before it is stored or copied; unsupported styling and unsafe elements are removed.
 
