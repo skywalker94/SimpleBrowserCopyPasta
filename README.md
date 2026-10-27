@@ -21,7 +21,7 @@ The static landing page is [`index.html`](./index.html). To publish it, enable G
 - Keep common pasted formatting and emojis in saved snippets.
 - Preview a shortened plain-text glimpse of each entry.
 - Copy both rich text and plain text to the clipboard when supported.
-- Export entries to a versioned JSON backup, or import a backup by merging entries. Matching entry IDs are updated; replacing all entries requires a separate confirmation.
+- Export entries to a versioned JSON backup, or import a backup by merging entries. Matching entry IDs are updated while retaining their local category; replacing all entries requires confirmation before file selection and again before changes are applied.
 - Choose a light or dark theme.
 - Store entries and preferences in `chrome.storage.local` on this browser instance. Nothing is sent to a cloud service.
 
@@ -36,10 +36,10 @@ After changing extension files, use **Reload** on its card at `chrome://extensio
 
 ## Usage
 
-1. Open the extension and select **➕ New**.
+1. Open the extension and select **＋ New**.
 2. Give the entry a name and add or paste text in the editor. Use the formatting toolbar as needed; emoji can be entered or pasted like regular text.
 3. Optionally choose a category (or leave **None** selected), then select **Save entry**. Use **Copy** to copy a snippet, **Edit** to change it, or **Delete** to remove it after confirming in the extension popup.
-4. Select the file icon beside **New** to export a JSON backup, import and merge a backup, or choose **Replace entries from JSON**. Replacing opens a confirmation dialog before current entries are overwritten.
+4. Select the file icon beside **New** to export a JSON backup, import and merge a backup, or choose **Replace entries from JSON**. Replace first asks before opening the file picker, then confirms again after a valid backup is selected and before current entries are overwritten. During a merge, matching entries keep their current local category.
 5. Use the switch in the header to change the theme.
 
 Use the category filters above the entry list to show all snippets, entries with no category (**None**), or one active category. Select the gear button to rename categories. Leave a category name blank to disable and hide it; if it contains entries, confirm to move those entries to **None**. Re-enable it at any time by assigning it a name again. Category names are limited to 24 characters; category colors, order, and the number of categories are fixed. Entries formerly assigned to the removed Red or Brown categories move to **None**.

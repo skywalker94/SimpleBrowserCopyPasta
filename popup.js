@@ -80,6 +80,7 @@
   let pendingDisabledCategories = [];
   let pendingImportEntries = null;
   let pendingImportMode = 'merge';
+  let replaceStage = 'choose-file';
   let themeAnimationTimeout = null;
   let mascotTimer = null;
 
@@ -118,6 +119,7 @@
     backupDialog.hidden = true;
     replaceConfirmDialog.hidden = true;
     pendingImportEntries = null;
+    replaceStage = 'choose-file';
     showBackupError('');
     replaceError.hidden = true;
     if (restoreFocus) document.getElementById('openBackup').focus();
@@ -126,13 +128,36 @@
   function closeReplaceConfirm(restoreFocus = true) {
     replaceConfirmDialog.hidden = true;
     pendingImportEntries = null;
+    replaceStage = 'choose-file';
     replaceError.hidden = true;
     if (restoreFocus) document.getElementById('replaceBackup').focus();
+  }
+
+  function openReplaceFileConfirm() {
+    pendingImportEntries = null;
+    replaceStage = 'choose-file';
+    document.getElementById('replaceConfirmTitle').textContent = 'Choose a replacement backup?';
+    replaceConfirmMessage.textContent =
+      'Warning: Importing will replace all current entries. After selecting a file, you get a preview of the exact number of entries to be removed and added before any changes happen.';
+    document.getElementById('confirmReplace').textContent = 'Choose file…';
+    replaceError.hidden = true;
+    replaceConfirmDialog.hidden = false;
+    document.getElementById('confirmReplace').focus();
+  }
+
+  function chooseReplacementFile() {
+    replaceConfirmDialog.hidden = true;
+    backupFileInput.value = '';
+    backupFileInput.click();
   }
 
   function chooseBackupFile(mode) {
     pendingImportMode = mode;
     showBackupError('');
+    if (mode === 'replace') {
+      openReplaceFileConfirm();
+      return;
+    }
     backupFileInput.value = '';
     backupFileInput.click();
   }
@@ -213,6 +238,7 @@
     showBackupError('');
     if (file.size > MAX_BACKUP_SIZE) {
       showBackupError('The selected backup is too large to import (maximum 10 MB).');
+      if (mode === 'replace') backupDialog.hidden = false;
       return;
     }
 
@@ -220,8 +246,11 @@
       const importedEntries = validateBackup(await file.text());
       if (mode === 'replace') {
         pendingImportEntries = importedEntries;
+        replaceStage = 'confirm';
+        document.getElementById('replaceConfirmTitle').textContent = 'Replace all entries?';
         replaceConfirmMessage.textContent =
           `This backup contains ${importedEntries.length} ${importedEntries.length === 1 ? 'entry' : 'entries'}. Replacing will remove all ${entries.length} current ${entries.length === 1 ? 'entry' : 'entries'}. This cannot be undone.`;
+        document.getElementById('confirmReplace').textContent = 'Replace entries';
         replaceError.hidden = true;
         replaceConfirmDialog.hidden = false;
         document.getElementById('confirmReplace').focus();
@@ -229,8 +258,12 @@
       }
 
       const importedById = new Map(importedEntries.map((entry) => [entry.id, entry]));
+      const existingById = new Map(entries.map((entry) => [entry.id, entry]));
       const mergedEntries = [
-        ...importedEntries,
+        ...importedEntries.map((entry) => {
+          const existing = existingById.get(entry.id);
+          return existing ? { ...entry, category: existing.category } : entry;
+        }),
         ...entries.filter((entry) => !importedById.has(entry.id))
       ];
       await storageSet({ [ENTRIES_KEY]: mergedEntries });
@@ -239,11 +272,16 @@
       closeBackupDialog();
       showStatus(`Backup merged (${importedEntries.length} imported ${importedEntries.length === 1 ? 'entry' : 'entries'}).`);
     } catch (error) {
+      if (mode === 'replace') backupDialog.hidden = false;
       showBackupError(`Could not import backup: ${error.message}`);
     }
   }
 
   async function confirmBackupReplacement() {
+    if (replaceStage === 'choose-file') {
+      chooseReplacementFile();
+      return;
+    }
     if (!pendingImportEntries) return;
     const replacementEntries = pendingImportEntries;
     const confirmButton = document.getElementById('confirmReplace');
