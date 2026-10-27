@@ -32,9 +32,6 @@
           <button id="addEntry" class="button primary" type="button">＋ New entry</button>
         </div>
         <div id="categoryFilters" class="category-filters" role="group" aria-label="Filter snippets by category"></div>
-        <div class="category-tools">
-          <button id="manageCategories" class="button quiet" type="button">Rename categories</button>
-        </div>
         <div id="entryList" class="entry-list"></div>
         <p id="emptyState" class="empty-state" hidden>No snippets yet. Add one to get started.</p>
       </section>
@@ -89,24 +86,36 @@
     <section class="confirm-dialog category-dialog" role="dialog" aria-modal="true"
       aria-labelledby="categoryDialogTitle">
       <h2 id="categoryDialogTitle">Rename categories</h2>
-      <p class="muted">These preset categories and their colors stay fixed. You can rename them, but not add or remove them.</p>
+      <p class="muted">Rename a category, or leave its name blank to hide it. Hidden categories can be restored by naming them again.</p>
       <form id="categoryForm">
         <label class="field-label" for="categoryNameWork">Blue category</label>
         <input id="categoryNameWork" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameIdeas">Gold / yellow category</label>
+        <input id="categoryNameIdeas" class="name-input category-name-input" type="text" maxlength="24" />
         <label class="field-label" for="categoryNamePersonal">Green category</label>
         <input id="categoryNamePersonal" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameSocial">Purple category</label>
-        <input id="categoryNameSocial" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameIdeas">Ochre category</label>
-        <input id="categoryNameIdeas" class="name-input category-name-input" type="text" maxlength="24" />
         <label class="field-label" for="categoryNameFollowup">Orange category</label>
         <input id="categoryNameFollowup" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameSocial">Purple category</label>
+        <input id="categoryNameSocial" class="name-input category-name-input" type="text" maxlength="24" />
         <p id="categoryError" class="dialog-error" role="alert" hidden></p>
         <div class="dialog-actions">
           <button id="cancelCategories" class="button" type="button">Cancel</button>
           <button class="button primary" type="submit">Save names</button>
         </div>
       </form>
+    </section>
+  </div>
+
+  <div id="disableCategoryDialog" class="dialog-backdrop nested-dialog" hidden>
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true"
+      aria-labelledby="disableCategoryTitle" aria-describedby="disableCategoryMessage">
+      <h2 id="disableCategoryTitle">Disable categories?</h2>
+      <p id="disableCategoryMessage" class="muted"></p>
+      <div class="dialog-actions">
+        <button id="cancelDisableCategory" class="button" type="button">Go back</button>
+        <button id="confirmDisableCategory" class="button delete-confirm" type="button">Disable</button>
+      </div>
     </section>
   </div>
 

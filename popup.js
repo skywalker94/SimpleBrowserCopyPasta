@@ -11,10 +11,10 @@
   const UNCATEGORIZED_COLOR = '#94a3b8';
   const CATEGORIES = {
     work: { defaultName: 'Work', color: '#3b82f6', inputId: 'categoryNameWork' },
-    personal: { defaultName: 'Personal', color: '#22a06b', inputId: 'categoryNamePersonal' },
-    social: { defaultName: 'Social', color: '#a855f7', inputId: 'categoryNameSocial' },
     ideas: { defaultName: 'Ideas', color: '#c49a2a', inputId: 'categoryNameIdeas' },
-    followup: { defaultName: 'Follow-up', color: '#f97316', inputId: 'categoryNameFollowup' }
+    personal: { defaultName: 'Personal', color: '#22a06b', inputId: 'categoryNamePersonal' },
+    followup: { defaultName: 'Follow-up', color: '#f97316', inputId: 'categoryNameFollowup' },
+    social: { defaultName: 'Social', color: '#a855f7', inputId: 'categoryNameSocial' }
   };
   const DEFAULT_CATEGORY_NAMES = Object.fromEntries(
     Object.entries(CATEGORIES).map(([id, category]) => [id, category.defaultName])
@@ -46,9 +46,13 @@
   const cancelDelete = document.getElementById('cancelDelete');
   const confirmDelete = document.getElementById('confirmDelete');
   const categoryDialog = document.getElementById('categoryDialog');
+  const disableCategoryDialog = document.getElementById('disableCategoryDialog');
+  const disableCategoryMessage = document.getElementById('disableCategoryMessage');
   const categoryForm = document.getElementById('categoryForm');
   const categoryError = document.getElementById('categoryError');
   const cancelCategories = document.getElementById('cancelCategories');
+  const cancelDisableCategory = document.getElementById('cancelDisableCategory');
+  const confirmDisableCategory = document.getElementById('confirmDisableCategory');
   const categoryNameInputs = Object.fromEntries(
     Object.entries(CATEGORIES).map(([id, category]) => [id, document.getElementById(category.inputId)])
   );
@@ -60,6 +64,8 @@
   let pendingDeleteEntry = null;
   let returnFocusTo = null;
   let categoryDialogReturnFocus = null;
+  let pendingCategoryNames = null;
+  let pendingDisabledCategories = [];
 
   function storageGet(keys) {
     return new Promise((resolve, reject) => {
@@ -175,6 +181,7 @@
     entryCategory.appendChild(uncategorized);
 
     for (const [id, category] of Object.entries(CATEGORIES)) {
+      if (!categoryNames[id]) continue;
       const option = document.createElement('option');
       option.value = id;
       option.textContent = categoryNames[id];
@@ -187,7 +194,9 @@
     const filters = [
       { id: 'all', label: 'All' },
       { id: '', label: 'Uncategorized' },
-      ...Object.keys(CATEGORIES).map((id) => ({ id, label: categoryNames[id] }))
+      ...Object.keys(CATEGORIES)
+        .filter((id) => categoryNames[id])
+        .map((id) => ({ id, label: categoryNames[id] }))
     ];
 
     for (const filter of filters) {
@@ -214,6 +223,16 @@
       });
       categoryFilters.appendChild(button);
     }
+
+    const manageButton = document.createElement('button');
+    manageButton.id = 'manageCategories';
+    manageButton.type = 'button';
+    manageButton.className = 'category-settings-button';
+    manageButton.setAttribute('aria-label', 'Rename categories');
+    manageButton.title = 'Rename categories';
+    manageButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.6 7.6 0 0 0 .05-.94 7.6 7.6 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54A.49.49 0 0 0 13.89 2h-3.78a.49.49 0 0 0-.49.42L9.26 4.96c-.59.23-1.14.55-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.71 8.48a.5.5 0 0 0 .12.64l2.03 1.58a7.6 7.6 0 0 0-.05.94c0 .32.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.12.21.37.29.61.22l2.39-.96c.49.39 1.04.71 1.63.94l.36 2.54c.04.24.24.42.49.42h3.78c.25 0 .45-.18.49-.42l.36-2.54c.59-.23 1.14-.55 1.63-.94l2.39.96c.23.08.49-.01.61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg>';
+    manageButton.addEventListener('click', openCategoryDialog);
+    categoryFilters.appendChild(manageButton);
   }
 
   function renderEntries() {
@@ -376,9 +395,7 @@
 
   function closeCategoryDialog(restoreFocus = true) {
     categoryDialog.hidden = true;
-    if (restoreFocus && categoryDialogReturnFocus && categoryDialogReturnFocus.isConnected) {
-      categoryDialogReturnFocus.focus();
-    }
+    if (restoreFocus) document.getElementById('manageCategories')?.focus();
     categoryDialogReturnFocus = null;
   }
 
@@ -390,19 +407,51 @@
     const names = {};
     for (const id of Object.keys(CATEGORIES)) {
       const name = value[id];
-      if (typeof name !== 'string' || !name.trim() || name.trim().length > MAX_CATEGORY_NAME_LENGTH) {
+      if (typeof name !== 'string' || name.trim().length > MAX_CATEGORY_NAME_LENGTH) {
         return { ...DEFAULT_CATEGORY_NAMES };
       }
       names[id] = name.trim();
     }
 
-    if (new Set(Object.values(names).map((name) => name.toLocaleLowerCase())).size !== Object.keys(CATEGORIES).length) {
+    const activeNames = Object.values(names).filter(Boolean).map((name) => name.toLocaleLowerCase());
+    if (new Set(activeNames).size !== activeNames.length) {
       return { ...DEFAULT_CATEGORY_NAMES };
     }
-    if (Object.values(names).some((name) => ['all', 'uncategorized'].includes(name.toLocaleLowerCase()))) {
+    if (activeNames.some((name) => ['all', 'uncategorized'].includes(name))) {
       return { ...DEFAULT_CATEGORY_NAMES };
     }
     return names;
+  }
+
+  async function commitCategoryNames(updatedNames, disabledCategories) {
+    const disabledIds = new Set(disabledCategories.map((category) => category.id));
+    const updatedEntries = disabledIds.size > 0
+      ? entries.map((entry) => disabledIds.has(entry.category) ? { ...entry, category: '' } : entry)
+      : entries;
+    const storagePayload = { [CATEGORY_NAMES_KEY]: updatedNames };
+    if (disabledIds.size > 0) storagePayload[ENTRIES_KEY] = updatedEntries;
+
+    try {
+      await storageSet(storagePayload);
+      categoryNames = updatedNames;
+      entries = updatedEntries;
+      if (activeFilter !== 'all' && activeFilter !== '' && !categoryNames[activeFilter]) {
+        activeFilter = 'all';
+      }
+      pendingCategoryNames = null;
+      pendingDisabledCategories = [];
+      disableCategoryDialog.hidden = true;
+      renderEntries();
+      closeCategoryDialog();
+      showStatus('Category settings saved.');
+    } catch (error) {
+      disableCategoryDialog.hidden = true;
+      categoryError.textContent = `Could not save category settings: ${error.message}`;
+      categoryError.hidden = false;
+      categoryNameInputs[disabledCategories[0]?.id || Object.keys(CATEGORIES)[0]].focus();
+      pendingCategoryNames = null;
+      pendingDisabledCategories = [];
+    }
   }
 
   async function saveCategoryNames(event) {
@@ -410,12 +459,6 @@
     const updatedNames = {};
     for (const [id, input] of Object.entries(categoryNameInputs)) {
       const name = input.value.trim();
-      if (!name) {
-        categoryError.textContent = 'Category names cannot be blank. Use “No category” when an entry should stay uncategorized.';
-        categoryError.hidden = false;
-        input.focus();
-        return;
-      }
       if (name.length > MAX_CATEGORY_NAME_LENGTH) {
         categoryError.textContent = `Category names must be ${MAX_CATEGORY_NAME_LENGTH} characters or fewer.`;
         categoryError.hidden = false;
@@ -425,7 +468,7 @@
       updatedNames[id] = name;
     }
 
-    const normalizedNames = Object.values(updatedNames).map((name) => name.toLocaleLowerCase());
+    const normalizedNames = Object.values(updatedNames).filter(Boolean).map((name) => name.toLocaleLowerCase());
     if (new Set(normalizedNames).size !== normalizedNames.length) {
       categoryError.textContent = 'Each category needs a different name.';
       categoryError.hidden = false;
@@ -437,16 +480,28 @@
       return;
     }
 
-    try {
-      await storageSet({ [CATEGORY_NAMES_KEY]: updatedNames });
-      categoryNames = updatedNames;
-      closeCategoryDialog();
-      renderEntries();
-      showStatus('Category names saved.');
-    } catch (error) {
-      categoryError.textContent = `Could not save category names: ${error.message}`;
-      categoryError.hidden = false;
+    const disabledCategories = Object.keys(CATEGORIES)
+      .filter((id) => categoryNames[id] && !updatedNames[id])
+      .map((id) => ({
+        id,
+        name: categoryNames[id],
+        count: entries.filter((entry) => entry.category === id).length
+      }))
+      .filter((category) => category.count > 0);
+
+    if (disabledCategories.length > 0) {
+      pendingCategoryNames = updatedNames;
+      pendingDisabledCategories = disabledCategories;
+      const summary = disabledCategories
+        .map((category) => `${category.name} (${category.count} ${category.count === 1 ? 'entry' : 'entries'})`)
+        .join(', ');
+      disableCategoryMessage.textContent = `Disabling ${summary} will move those entries to Uncategorized. Continue?`;
+      disableCategoryDialog.hidden = false;
+      confirmDisableCategory.focus();
+      return;
     }
+
+    await commitCategoryNames(updatedNames, []);
   }
 
   async function copyEntry(entry) {
@@ -493,7 +548,7 @@
               id: item.id,
               name: item.name,
               content: sanitizeHtml(item.content),
-              category,
+              category: categoryNames[category] ? category : '',
               updatedAt: item.updatedAt
             };
           })
@@ -510,11 +565,34 @@
   }
 
   document.getElementById('addEntry').addEventListener('click', () => openEditor());
-  document.getElementById('manageCategories').addEventListener('click', openCategoryDialog);
   document.getElementById('cancelEdit').addEventListener('click', closeEditor);
   entryForm.addEventListener('submit', saveEntry);
   categoryForm.addEventListener('submit', saveCategoryNames);
   cancelCategories.addEventListener('click', () => closeCategoryDialog());
+  cancelDisableCategory.addEventListener('click', () => {
+    disableCategoryDialog.hidden = true;
+    pendingCategoryNames = null;
+    pendingDisabledCategories = [];
+    const categoryToEdit = Object.keys(CATEGORIES).find((id) => !categoryNameInputs[id].value.trim());
+    if (categoryToEdit) categoryNameInputs[categoryToEdit].focus();
+    else categoryForm.querySelector('[type="submit"]').focus();
+  });
+  confirmDisableCategory.addEventListener('click', () => {
+    if (pendingCategoryNames) commitCategoryNames(pendingCategoryNames, pendingDisabledCategories);
+  });
+  disableCategoryDialog.addEventListener('click', (event) => {
+    if (event.target === disableCategoryDialog) cancelDisableCategory.click();
+  });
+  disableCategoryDialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelDisableCategory.click();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      if (document.activeElement === cancelDisableCategory) confirmDisableCategory.focus();
+      else cancelDisableCategory.focus();
+    }
+  });
   cancelDelete.addEventListener('click', closeDeleteDialog);
   confirmDelete.addEventListener('click', () => {
     if (pendingDeleteEntry) deleteEntry(pendingDeleteEntry);

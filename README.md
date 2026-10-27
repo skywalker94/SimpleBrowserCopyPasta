@@ -13,7 +13,7 @@ The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https:/
 - Create, edit, and delete named snippets.
 - Limit entry names to 50 characters; long names appear on one line and can be read in full by hovering.
 - Delete empty entries immediately; entries with text still show a confirmation prompt.
-- Optionally assign a category or leave it blank (gray/uncategorized). Five preset categories—blue, green, purple, ochre, and orange—can be renamed but not added or removed.
+- Optionally assign a category or leave it blank (gray/uncategorized). Five fixed color categories—blue, gold/yellow, green, orange, and purple—can be renamed but not added or removed.
 - Filter entries by category, including uncategorized entries.
 - Format text with bold, italic, underline, strikethrough, and lists.
 - Keep common pasted formatting and emojis in saved snippets.
@@ -38,7 +38,7 @@ After changing extension files, use **Reload** on its card at `chrome://extensio
 3. Optionally choose a category (or leave **No category** selected), then select **Save entry**. Use **Copy** to copy a snippet, **Edit** to change it, or **Delete** to remove it after confirming in the extension popup.
 4. Use the switch in the header to change the theme.
 
-Use the category filters above the entry list to show all snippets, uncategorized entries, or one category. Select **Rename categories** to rename any of the five preset categories. Category names are limited to 24 characters; category colors and the number of categories are fixed.
+Use the category filters above the entry list to show all snippets, uncategorized entries, or one active category. Select the gear button to rename categories. Leave a category name blank to disable and hide it; if it contains entries, confirm to move those entries to Uncategorized. Re-enable it at any time by assigning it a name again. Category names are limited to 24 characters; category colors, order, and the number of categories are fixed.
 
 Entries created before categories were introduced are migrated when loaded: the former General category becomes uncategorized, and other matching preset categories are retained.
 
