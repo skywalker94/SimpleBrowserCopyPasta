@@ -42,6 +42,41 @@ button { color: inherit; }
 h1 { margin: 0; font-size: 16px; font-weight: 650; }
 h2 { margin: 0; font-size: 17px; font-weight: 650; }
 
+.theme-picker { display: flex; align-items: center; gap: 7px; }
+.theme-icons { position: relative; display: inline-block; width: 23px; height: 23px; }
+.theme-icons span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  transition: opacity 0.3s ease, transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.theme-sun { opacity: 1; transform: rotate(0) scale(1); }
+.theme-moon { opacity: 0; transform: rotate(-180deg) scale(0.2); }
+body.dark .theme-sun { opacity: 0; transform: rotate(180deg) scale(0.2); }
+body.dark .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
+body.theme-transition-dark .theme-sun { animation: sun-set 0.7s ease both; }
+body.theme-transition-dark .theme-moon { animation: moon-rise 0.7s ease both; }
+body.theme-transition-light .theme-moon { animation: moon-set 0.7s ease both; }
+body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
+@keyframes sun-set {
+  from { opacity: 1; transform: rotate(0) scale(1); }
+  to { opacity: 0; transform: rotate(180deg) scale(0.2); }
+}
+@keyframes moon-rise {
+  from { opacity: 0; transform: rotate(-180deg) scale(0.2); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+@keyframes moon-set {
+  from { opacity: 1; transform: rotate(0) scale(1); }
+  to { opacity: 0; transform: rotate(180deg) scale(0.2); }
+}
+@keyframes sun-rise {
+  from { opacity: 0; transform: rotate(-180deg) scale(0.2); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
 .theme-control { position: relative; display: inline-flex; width: 42px; height: 23px; }
 .theme-control input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .theme-slider {
@@ -218,11 +253,42 @@ h2 { margin: 0; font-size: 17px; font-weight: 650; }
 .editor-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
 
 .footer {
-  padding: 9px 14px;
+  position: relative;
+  padding: 8px 14px 28px;
   border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: 11px;
   text-align: center;
+}
+.mascot { position: absolute; inset: 0; overflow: hidden; pointer-events: none; user-select: none; }
+.mascot-face {
+  position: absolute;
+  bottom: 2px;
+  left: var(--mascot-x);
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--fg);
+  background: transparent;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+.mascot-face:hover { background: var(--surface); }
+.mascot-face:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mascot.mascot-pop .mascot-face { animation: mascot-pop var(--mascot-duration) ease both; }
+@keyframes mascot-pop {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.65); }
+  12%, 84% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 5px) scale(0.9); }
 }
 .dialog-backdrop {
   position: fixed;
@@ -270,6 +336,11 @@ body.dark {
   --surface: #222222;
   --border: rgba(255, 255, 255, 0.13);
   --danger: #ff8a80;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-icons span { transition: none; animation: none !important; }
+  .mascot { display: none; }
 }
 
 @media (max-width: 420px) { body { width: 100%; } }

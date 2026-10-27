@@ -9,12 +9,13 @@
   const MAX_PREVIEW_LENGTH = 180;
   const MAX_CATEGORY_NAME_LENGTH = 24;
   const UNCATEGORIZED_COLOR = '#94a3b8';
+  const REMOVED_CATEGORY_IDS = new Set(['red', 'brown']);
   const CATEGORIES = {
     work: { defaultName: 'Work', color: '#3b82f6', inputId: 'categoryNameWork' },
     ideas: { defaultName: 'Ideas', color: '#c49a2a', inputId: 'categoryNameIdeas' },
-    personal: { defaultName: 'Personal', color: '#22a06b', inputId: 'categoryNamePersonal' },
+    social: { defaultName: 'Social', color: '#a855f7', inputId: 'categoryNameSocial' },
     followup: { defaultName: 'Follow-up', color: '#f97316', inputId: 'categoryNameFollowup' },
-    social: { defaultName: 'Social', color: '#a855f7', inputId: 'categoryNameSocial' }
+    personal: { defaultName: 'Personal', color: '#22a06b', inputId: 'categoryNamePersonal' }
   };
   const DEFAULT_CATEGORY_NAMES = Object.fromEntries(
     Object.entries(CATEGORIES).map(([id, category]) => [id, category.defaultName])
@@ -53,6 +54,7 @@
   const cancelCategories = document.getElementById('cancelCategories');
   const cancelDisableCategory = document.getElementById('cancelDisableCategory');
   const confirmDisableCategory = document.getElementById('confirmDisableCategory');
+  const mascot = document.getElementById('mascot');
   const categoryNameInputs = Object.fromEntries(
     Object.entries(CATEGORIES).map(([id, category]) => [id, document.getElementById(category.inputId)])
   );
@@ -66,6 +68,8 @@
   let categoryDialogReturnFocus = null;
   let pendingCategoryNames = null;
   let pendingDisabledCategories = [];
+  let themeAnimationTimeout = null;
+  let mascotTimer = null;
 
   function storageGet(keys) {
     return new Promise((resolve, reject) => {
@@ -177,7 +181,7 @@
     entryCategory.replaceChildren();
     const uncategorized = document.createElement('option');
     uncategorized.value = '';
-    uncategorized.textContent = 'No category';
+    uncategorized.textContent = 'None';
     entryCategory.appendChild(uncategorized);
 
     for (const [id, category] of Object.entries(CATEGORIES)) {
@@ -193,7 +197,7 @@
     categoryFilters.replaceChildren();
     const filters = [
       { id: 'all', label: 'All' },
-      { id: '', label: 'Uncategorized' },
+      { id: '', label: 'None' },
       ...Object.keys(CATEGORIES)
         .filter((id) => categoryNames[id])
         .map((id) => ({ id, label: categoryNames[id] }))
@@ -246,7 +250,7 @@
     if (entries.length === 0) {
       emptyState.textContent = 'No snippets yet. Add one to get started.';
     } else if (activeFilter === '') {
-      emptyState.textContent = 'No uncategorized snippets yet.';
+      emptyState.textContent = 'No uncategorised snippets yet.';
     } else if (activeFilter === 'all') {
       emptyState.textContent = 'No snippets yet. Add one to get started.';
     } else {
@@ -405,20 +409,33 @@
     }
 
     const names = {};
+    const activeNames = new Set();
+    const colorNames = {
+      work: 'Blue',
+      ideas: 'Gold/Yellow',
+      social: 'Purple',
+      followup: 'Orange',
+      personal: 'Green'
+    };
+    const reservedNames = new Set(['all', 'none', 'uncategorized', 'uncategorised']);
     for (const id of Object.keys(CATEGORIES)) {
       const name = value[id];
-      if (typeof name !== 'string' || name.trim().length > MAX_CATEGORY_NAME_LENGTH) {
-        return { ...DEFAULT_CATEGORY_NAMES };
+      let normalizedName = typeof name === 'string' && name.trim().length <= MAX_CATEGORY_NAME_LENGTH
+        ? name.trim()
+        : DEFAULT_CATEGORY_NAMES[id];
+      if (normalizedName.toLocaleLowerCase() === colorNames[id].toLocaleLowerCase()) {
+        normalizedName = DEFAULT_CATEGORY_NAMES[id];
       }
-      names[id] = name.trim();
-    }
-
-    const activeNames = Object.values(names).filter(Boolean).map((name) => name.toLocaleLowerCase());
-    if (new Set(activeNames).size !== activeNames.length) {
-      return { ...DEFAULT_CATEGORY_NAMES };
-    }
-    if (activeNames.some((name) => ['all', 'uncategorized'].includes(name))) {
-      return { ...DEFAULT_CATEGORY_NAMES };
+      const lowerName = normalizedName.toLocaleLowerCase();
+      if (lowerName && (reservedNames.has(lowerName) || activeNames.has(lowerName))) {
+        normalizedName = DEFAULT_CATEGORY_NAMES[id];
+      }
+      const finalName = normalizedName.toLocaleLowerCase();
+      if (finalName && (reservedNames.has(finalName) || activeNames.has(finalName))) {
+        normalizedName = '';
+      }
+      names[id] = normalizedName;
+      if (normalizedName) activeNames.add(normalizedName.toLocaleLowerCase());
     }
     return names;
   }
@@ -474,8 +491,8 @@
       categoryError.hidden = false;
       return;
     }
-    if (normalizedNames.some((name) => name === 'all' || name === 'uncategorized')) {
-      categoryError.textContent = 'Category names cannot use the reserved names “All” or “Uncategorized”.';
+    if (normalizedNames.some((name) => ['all', 'none', 'uncategorized', 'uncategorised'].includes(name))) {
+      categoryError.textContent = 'Category names cannot use the reserved filter names All or None.';
       categoryError.hidden = false;
       return;
     }
@@ -495,7 +512,7 @@
       const summary = disabledCategories
         .map((category) => `${category.name} (${category.count} ${category.count === 1 ? 'entry' : 'entries'})`)
         .join(', ');
-      disableCategoryMessage.textContent = `Disabling ${summary} will move those entries to Uncategorized. Continue?`;
+      disableCategoryMessage.textContent = `Disabling ${summary} will move those entries to None. Continue?`;
       disableCategoryDialog.hidden = false;
       confirmDisableCategory.focus();
       return;
@@ -541,9 +558,11 @@
         ? savedEntries.filter((item) => item && typeof item.id === 'string' &&
           typeof item.name === 'string' && typeof item.content === 'string')
           .map((item) => {
-            const category = CATEGORIES[item.category]
-              ? item.category
-              : CATEGORIES[item.tag] ? item.tag : '';
+            const storedCategory = typeof item.category === 'string' ? item.category : item.tag;
+            const removedCategory = REMOVED_CATEGORY_IDS.has(storedCategory);
+            const category = removedCategory
+              ? ''
+              : CATEGORIES[item.category] ? item.category : CATEGORIES[item.tag] ? item.tag : '';
             return {
               id: item.id,
               name: item.name,
@@ -553,6 +572,14 @@
             };
           })
         : [];
+      if (Array.isArray(savedEntries) && savedEntries.some((item) =>
+        item && REMOVED_CATEGORY_IDS.has(item.category || item.tag))) {
+        await storageSet({
+          [ENTRIES_KEY]: entries.map(({ id, name, content, category, updatedAt }) => ({
+            id, name, content, category, updatedAt
+          }))
+        });
+      }
 
       const dark = stored[THEME_KEY] === 'dark';
       document.body.classList.toggle('dark', dark);
@@ -564,6 +591,58 @@
     }
   }
 
+  function showMascot() {
+    if (!mascot || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const faces = document.body.classList.contains('dark')
+      ? ['🦉']
+      : ['🐈', '🐈‍⬛', '😺', '😸', '🐱'];
+    mascot.replaceChildren();
+    const face = document.createElement('button');
+    face.type = 'button';
+    face.className = 'mascot-face';
+    const isOwl = document.body.classList.contains('dark');
+    face.textContent = faces[Math.floor(Math.random() * faces.length)];
+    face.setAttribute('aria-label', `Dismiss ${isOwl ? 'owl' : 'cat'}`);
+    face.title = `Click to dismiss this ${isOwl ? 'owl' : 'cat'}`;
+    face.style.setProperty('--mascot-x', `${8 + Math.random() * 84}%`);
+    const duration = 2000 + Math.random() * 1000;
+    face.style.setProperty('--mascot-duration', `${duration}ms`);
+    face.addEventListener('click', dismissMascot);
+    mascot.appendChild(face);
+    mascot.classList.remove('mascot-pop');
+    void mascot.offsetWidth;
+    mascot.classList.add('mascot-pop');
+    mascotTimer = window.setTimeout(dismissMascot, duration);
+  }
+
+  function dismissMascot() {
+    if (mascotTimer) window.clearTimeout(mascotTimer);
+    mascotTimer = null;
+    mascot.classList.remove('mascot-pop');
+    mascot.replaceChildren();
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      mascotTimer = window.setTimeout(showMascot, 1200 + Math.random() * 3800);
+    }
+  }
+
+  function scheduleMascot(delay = 800 + Math.random() * 2200) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (mascotTimer) window.clearTimeout(mascotTimer);
+    mascotTimer = window.setTimeout(showMascot, delay);
+  }
+
+  function animateThemeTransition(isDark) {
+    const transitionClass = isDark ? 'theme-transition-dark' : 'theme-transition-light';
+    document.body.classList.remove('theme-transition-dark', 'theme-transition-light');
+    if (themeAnimationTimeout) window.clearTimeout(themeAnimationTimeout);
+    void document.body.offsetWidth;
+    document.body.classList.add(transitionClass);
+    themeAnimationTimeout = window.setTimeout(() => {
+      document.body.classList.remove(transitionClass);
+      themeAnimationTimeout = null;
+    }, 750);
+  }
+
   document.getElementById('addEntry').addEventListener('click', () => openEditor());
   document.getElementById('cancelEdit').addEventListener('click', closeEditor);
   entryForm.addEventListener('submit', saveEntry);
@@ -571,9 +650,10 @@
   cancelCategories.addEventListener('click', () => closeCategoryDialog());
   cancelDisableCategory.addEventListener('click', () => {
     disableCategoryDialog.hidden = true;
+    const categoryToEdit = pendingDisabledCategories[0]?.id ||
+      Object.keys(CATEGORIES).find((id) => !categoryNameInputs[id].value.trim());
     pendingCategoryNames = null;
     pendingDisabledCategories = [];
-    const categoryToEdit = Object.keys(CATEGORIES).find((id) => !categoryNameInputs[id].value.trim());
     if (categoryToEdit) categoryNameInputs[categoryToEdit].focus();
     else categoryForm.querySelector('[type="submit"]').focus();
   });
@@ -584,6 +664,7 @@
     if (event.target === disableCategoryDialog) cancelDisableCategory.click();
   });
   disableCategoryDialog.addEventListener('keydown', (event) => {
+    event.stopPropagation();
     if (event.key === 'Escape') {
       event.preventDefault();
       cancelDisableCategory.click();
@@ -651,12 +732,18 @@
   themeToggle.addEventListener('change', async () => {
     const theme = themeToggle.checked ? 'dark' : 'light';
     document.body.classList.toggle('dark', theme === 'dark');
+    animateThemeTransition(theme === 'dark');
+    mascot.classList.remove('mascot-pop');
+    mascot.replaceChildren();
+    scheduleMascot();
     try {
       await storageSet({ [THEME_KEY]: theme });
     } catch (error) {
       showStatus(`Could not save theme preference: ${error.message}`, true);
     }
   });
+
+  scheduleMascot();
 
   loadData();
 })();

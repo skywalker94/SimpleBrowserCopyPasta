@@ -13,8 +13,9 @@ The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https:/
 - Create, edit, and delete named snippets.
 - Limit entry names to 50 characters; long names appear on one line and can be read in full by hovering.
 - Delete empty entries immediately; entries with text still show a confirmation prompt.
-- Optionally assign a category or leave it blank (gray/uncategorized). Five fixed color categories—blue, gold/yellow, green, orange, and purple—can be renamed but not added or removed.
-- Filter entries by category, including uncategorized entries.
+- Optionally assign one of five fixed categories—**Work** (blue), **Ideas** (gold/yellow), **Social** (purple), **Follow-up** (orange), and **Personal** (green)—or leave it as **None**. Categories can be renamed, disabled, or re-enabled; they cannot be added or removed.
+- Filter entries by category, including entries with **None**.
+- Enjoy animated sun/moon theme icons and occasional cats in light mode or owls in dark mode. One mascot appears at a random position for 2–3 seconds; click it to dismiss it sooner. Mascots respect reduced-motion preferences.
 - Format text with bold, italic, underline, strikethrough, and lists.
 - Keep common pasted formatting and emojis in saved snippets.
 - Preview a shortened plain-text glimpse of each entry.
@@ -35,12 +36,12 @@ After changing extension files, use **Reload** on its card at `chrome://extensio
 
 1. Open the extension and select **New entry**.
 2. Give the entry a name and add or paste text in the editor. Use the formatting toolbar as needed; emoji can be entered or pasted like regular text.
-3. Optionally choose a category (or leave **No category** selected), then select **Save entry**. Use **Copy** to copy a snippet, **Edit** to change it, or **Delete** to remove it after confirming in the extension popup.
+3. Optionally choose a category (or leave **None** selected), then select **Save entry**. Use **Copy** to copy a snippet, **Edit** to change it, or **Delete** to remove it after confirming in the extension popup.
 4. Use the switch in the header to change the theme.
 
-Use the category filters above the entry list to show all snippets, uncategorized entries, or one active category. Select the gear button to rename categories. Leave a category name blank to disable and hide it; if it contains entries, confirm to move those entries to Uncategorized. Re-enable it at any time by assigning it a name again. Category names are limited to 24 characters; category colors, order, and the number of categories are fixed.
+Use the category filters above the entry list to show all snippets, entries with no category (**None**), or one active category. Select the gear button to rename categories. Leave a category name blank to disable and hide it; if it contains entries, confirm to move those entries to **None**. Re-enable it at any time by assigning it a name again. Category names are limited to 24 characters; category colors, order, and the number of categories are fixed. Entries formerly assigned to the removed Red or Brown categories move to **None**.
 
-Entries created before categories were introduced are migrated when loaded: the former General category becomes uncategorized, and other matching preset categories are retained.
+Entries created before categories were introduced are migrated when loaded: the former General category becomes uncategorised, and other matching preset categories are retained.
 
 When available, Copy places both HTML and plain text on the clipboard. The plain-text fallback is used when rich clipboard writing is unavailable.
 

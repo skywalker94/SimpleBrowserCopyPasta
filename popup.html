@@ -13,11 +13,17 @@
         <img class="brand-logo" src="images/logo_64.png" alt="" />
         <h1>Copy Pasta</h1>
       </div>
-      <label class="theme-control" title="Toggle light/dark theme">
-        <span class="sr-only">Dark theme</span>
-        <input type="checkbox" id="themeToggle" />
-        <span class="theme-slider" aria-hidden="true"></span>
-      </label>
+      <div class="theme-picker">
+        <span class="theme-icons" aria-hidden="true">
+          <span class="theme-sun">☀️</span>
+          <span class="theme-moon">🌙</span>
+        </span>
+        <label class="theme-control" title="Toggle light/dark theme">
+          <span class="sr-only">Dark theme</span>
+          <input type="checkbox" id="themeToggle" />
+          <span class="theme-slider" aria-hidden="true"></span>
+        </label>
+      </div>
     </header>
 
     <main class="main">
@@ -47,7 +53,7 @@
             placeholder="e.g. Friendly email sign-off" required />
           <label class="field-label" for="entryCategory">Category</label>
           <select id="entryCategory" class="category-select">
-            <option value="">No category</option>
+            <option value="">None</option>
           </select>
           <label class="field-label" id="contentLabel">Text</label>
           <div class="toolbar" role="toolbar" aria-label="Text formatting">
@@ -67,7 +73,10 @@
         </form>
       </section>
     </main>
-    <footer class="footer">Your snippets never leave this browser.</footer>
+    <footer class="footer">
+      Your snippets never leave this browser.
+      <span id="mascot" class="mascot" aria-hidden="true"></span>
+    </footer>
   </div>
 
   <div id="deleteDialog" class="dialog-backdrop" hidden>
@@ -88,16 +97,16 @@
       <h2 id="categoryDialogTitle">Rename categories</h2>
       <p class="muted">Rename a category, or leave its name blank to hide it. Hidden categories can be restored by naming them again.</p>
       <form id="categoryForm">
-        <label class="field-label" for="categoryNameWork">Blue category</label>
+        <label class="field-label" for="categoryNameWork">Work category (blue)</label>
         <input id="categoryNameWork" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameIdeas">Gold / yellow category</label>
+        <label class="field-label" for="categoryNameIdeas">Ideas category (gold / yellow)</label>
         <input id="categoryNameIdeas" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNamePersonal">Green category</label>
-        <input id="categoryNamePersonal" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameFollowup">Orange category</label>
-        <input id="categoryNameFollowup" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameSocial">Purple category</label>
+        <label class="field-label" for="categoryNameSocial">Social category (purple)</label>
         <input id="categoryNameSocial" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNameFollowup">Follow-up category (orange)</label>
+        <input id="categoryNameFollowup" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="categoryNamePersonal">Personal category (green)</label>
+        <input id="categoryNamePersonal" class="name-input category-name-input" type="text" maxlength="24" />
         <p id="categoryError" class="dialog-error" role="alert" hidden></p>
         <div class="dialog-actions">
           <button id="cancelCategories" class="button" type="button">Cancel</button>
