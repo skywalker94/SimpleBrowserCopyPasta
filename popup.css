@@ -209,8 +209,10 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
 
 .entry-list {
   display: grid;
+  width: 100%;
   min-height: 0;
   flex: 1;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 7px;
   overflow-x: hidden;
@@ -220,6 +222,8 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
   scrollbar-width: thin;
 }
 .entry-card {
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 9px;
   border: 1px solid var(--border);
   border-left: 3px solid var(--category-color);
@@ -228,6 +232,7 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
 }
 .entry-card-top { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 8px; }
 .entry-name {
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   margin: 0;
@@ -249,7 +254,7 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
   -webkit-line-clamp: 1;
 }
 .entry-category-label { flex: 0 0 auto; max-width: 120px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.entry-actions { display: flex; justify-content: flex-end; gap: 5px; }
+.entry-actions { display: flex; flex: 0 0 auto; justify-content: flex-end; gap: 5px; }
 .entry-actions .button { min-height: 26px; padding: 3px 8px; font-size: 11px; }
 .empty-state { margin: 30px 0; color: var(--muted); text-align: center; }
 
