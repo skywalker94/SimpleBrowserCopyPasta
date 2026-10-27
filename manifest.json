@@ -3,8 +3,12 @@
   "name": "Simple Browser Copy Pasta",
   "description": "Store and copy rich-text snippets locally in your browser.",
   "version": "1.0.0",
+  "icons": {
+    "64": "images/logo_64.png"
+  },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "images/logo_64.png"
   },
   "permissions": [
     "storage",

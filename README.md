@@ -12,6 +12,7 @@ The source repository is [github.com/skywalker94/SimpleBrowserCopyPasta](https:/
 
 - Create, edit, and delete named snippets.
 - Limit entry names to 50 characters; long names appear on one line and can be read in full by hovering.
+- Delete empty entries immediately; entries with text still show a confirmation prompt.
 - Optionally assign a category or leave it blank (gray/uncategorized). Five preset categories—blue, green, purple, ochre, and orange—can be renamed but not added or removed.
 - Filter entries by category, including uncategorized entries.
 - Format text with bold, italic, underline, strikethrough, and lists.
@@ -53,11 +54,12 @@ The editor accepts common formatting and safe links. Pasted and saved HTML is fi
 
 | File | Purpose |
 | --- | --- |
-| `manifest.json` | Chrome extension metadata, popup, and storage/clipboard permissions. |
+| `manifest.json` | Chrome extension metadata, icon, popup, and storage/clipboard permissions. |
+| `images/logo_64.png` | Extension, toolbar, and static site logo. |
 | `popup.html` | Popup structure, entry list, and rich-text editor. |
 | `popup.css` | Popup layout, controls, and light/dark themes. |
 | `popup.js` | Local persistence, editing, sanitization, previews, and clipboard behavior. |
-| `index.html` | Self-contained static project and installation guide for GitHub Pages. |
+| `index.html` | Static project overview and installation guide for GitHub Pages. |
 | `README.md` | Installation and usage documentation. |
 
 The extension opens `popup.html` directly. `index.html` is only the static project website and is not used by the extension popup.

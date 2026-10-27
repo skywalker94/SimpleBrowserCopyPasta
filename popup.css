@@ -38,7 +38,7 @@ button { color: inherit; }
 }
 
 .brand { display: flex; align-items: center; gap: 9px; }
-.brand-mark { color: var(--accent); font-size: 21px; }
+.brand-logo { display: block; width: 32px; height: 32px; object-fit: contain; }
 h1 { margin: 0; font-size: 16px; font-weight: 650; }
 h2 { margin: 0; font-size: 17px; font-weight: 650; }
 
@@ -234,6 +234,7 @@ h2 { margin: 0; font-size: 17px; font-weight: 650; }
 .confirm-dialog .muted { margin-top: 8px; overflow-wrap: anywhere; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .delete-confirm { border-color: var(--danger); color: #ffffff; background: var(--danger); }
+.delete-confirm:hover { border-color: var(--danger); color: var(--danger); background: var(--bg); }
 .dialog-error { margin: 10px 0 0; color: var(--danger); font-size: 12px; }
 .sr-only {
   position: absolute;

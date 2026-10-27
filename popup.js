@@ -326,14 +326,6 @@
     }
   }
 
-  function openDeleteDialog(entry, trigger) {
-    pendingDeleteEntry = entry;
-    returnFocusTo = trigger;
-    deleteDialogMessage.textContent = `“${entry.name}” will be permanently deleted.`;
-    deleteDialog.hidden = false;
-    cancelDelete.focus();
-  }
-
   function closeDeleteDialog(restoreFocus = true) {
     deleteDialog.hidden = true;
     pendingDeleteEntry = null;
@@ -341,21 +333,34 @@
     returnFocusTo = null;
   }
 
-  async function deleteEntry() {
-    if (!pendingDeleteEntry) return;
-    const entry = pendingDeleteEntry;
+  async function deleteEntry(entry, confirmationOpen = true) {
     const updatedEntries = entries.filter((item) => item.id !== entry.id);
     try {
       await storageSet({ [ENTRIES_KEY]: updatedEntries });
       entries = updatedEntries;
-      closeDeleteDialog(false);
+      if (confirmationOpen) closeDeleteDialog(false);
+      else returnFocusTo = null;
       renderEntries();
       document.getElementById('addEntry').focus();
       showStatus('Entry deleted.');
     } catch (error) {
-      closeDeleteDialog();
+      if (confirmationOpen) closeDeleteDialog();
+      else returnFocusTo = null;
       showStatus(`Could not delete entry: ${error.message}`, true);
     }
+  }
+
+  function openDeleteDialog(entry, trigger) {
+    if (!plainTextFromHtml(entry.content).trim()) {
+      deleteEntry(entry, false);
+      return;
+    }
+
+    pendingDeleteEntry = entry;
+    returnFocusTo = trigger;
+    deleteDialogMessage.textContent = `“${entry.name}” will be permanently deleted.`;
+    deleteDialog.hidden = false;
+    cancelDelete.focus();
   }
 
   function openCategoryDialog() {
@@ -511,7 +516,9 @@
   categoryForm.addEventListener('submit', saveCategoryNames);
   cancelCategories.addEventListener('click', () => closeCategoryDialog());
   cancelDelete.addEventListener('click', closeDeleteDialog);
-  confirmDelete.addEventListener('click', deleteEntry);
+  confirmDelete.addEventListener('click', () => {
+    if (pendingDeleteEntry) deleteEntry(pendingDeleteEntry);
+  });
   deleteDialog.addEventListener('click', (event) => {
     if (event.target === deleteDialog) closeDeleteDialog();
   });
