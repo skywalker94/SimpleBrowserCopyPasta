@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Simple Browser Copy Pasta",
   "description": "Store and copy rich-text snippets locally in your browser.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "64": "images/logo_64.png"
   },
