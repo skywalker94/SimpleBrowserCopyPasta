@@ -6,6 +6,10 @@
   const ENTRIES_KEY = 'simple_copy_pasta_entries_v1';
   const THEME_KEY = 'simple_copy_pasta_theme';
   const CATEGORY_NAMES_KEY = 'simple_copy_pasta_category_names_v1';
+  const BACKUP_FORMAT = 'simple-browser-copy-pasta';
+  const BACKUP_VERSION = 1;
+  const MAX_BACKUP_SIZE = 10 * 1024 * 1024;
+  const MAX_ENTRY_NAME_LENGTH = 50;
   const MAX_PREVIEW_LENGTH = 180;
   const MAX_CATEGORY_NAME_LENGTH = 24;
   const UNCATEGORIZED_COLOR = '#94a3b8';
@@ -49,6 +53,12 @@
   const categoryDialog = document.getElementById('categoryDialog');
   const disableCategoryDialog = document.getElementById('disableCategoryDialog');
   const disableCategoryMessage = document.getElementById('disableCategoryMessage');
+  const backupDialog = document.getElementById('backupDialog');
+  const backupError = document.getElementById('backupError');
+  const backupFileInput = document.getElementById('backupFileInput');
+  const replaceConfirmDialog = document.getElementById('replaceConfirmDialog');
+  const replaceConfirmMessage = document.getElementById('replaceConfirmMessage');
+  const replaceError = document.getElementById('replaceError');
   const categoryForm = document.getElementById('categoryForm');
   const categoryError = document.getElementById('categoryError');
   const cancelCategories = document.getElementById('cancelCategories');
@@ -68,6 +78,8 @@
   let categoryDialogReturnFocus = null;
   let pendingCategoryNames = null;
   let pendingDisabledCategories = [];
+  let pendingImportEntries = null;
+  let pendingImportMode = 'merge';
   let themeAnimationTimeout = null;
   let mascotTimer = null;
 
@@ -89,6 +101,167 @@
         else resolve();
       });
     });
+  }
+
+  function showBackupError(message) {
+    backupError.textContent = message;
+    backupError.hidden = !message;
+  }
+
+  function openBackupDialog() {
+    showBackupError('');
+    backupDialog.hidden = false;
+    document.getElementById('exportBackup').focus();
+  }
+
+  function closeBackupDialog(restoreFocus = true) {
+    backupDialog.hidden = true;
+    replaceConfirmDialog.hidden = true;
+    pendingImportEntries = null;
+    showBackupError('');
+    replaceError.hidden = true;
+    if (restoreFocus) document.getElementById('openBackup').focus();
+  }
+
+  function closeReplaceConfirm(restoreFocus = true) {
+    replaceConfirmDialog.hidden = true;
+    pendingImportEntries = null;
+    replaceError.hidden = true;
+    if (restoreFocus) document.getElementById('replaceBackup').focus();
+  }
+
+  function chooseBackupFile(mode) {
+    pendingImportMode = mode;
+    showBackupError('');
+    backupFileInput.value = '';
+    backupFileInput.click();
+  }
+
+  function exportBackup() {
+    try {
+      const backup = {
+        format: BACKUP_FORMAT,
+        version: BACKUP_VERSION,
+        exportedAt: new Date().toISOString(),
+        entries: entries.map(({ id, name, content, category, updatedAt }) => ({
+          id,
+          name,
+          content: sanitizeHtml(content),
+          category: Object.prototype.hasOwnProperty.call(CATEGORIES, category) ? category : '',
+          updatedAt: Number.isFinite(updatedAt) ? updatedAt : Date.now()
+        }))
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const download = document.createElement('a');
+      download.href = url;
+      download.download = `simple-browser-copy-pasta-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      closeBackupDialog();
+      showStatus(`Backup exported (${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}).`);
+    } catch (error) {
+      showBackupError(`Could not export backup: ${error.message}`);
+    }
+  }
+
+  function validateBackup(text) {
+    let backup;
+    try {
+      backup = JSON.parse(text);
+    } catch {
+      throw new Error('This file is not valid JSON.');
+    }
+
+    if (!backup || typeof backup !== 'object' || Array.isArray(backup) ||
+      backup.format !== BACKUP_FORMAT || backup.version !== BACKUP_VERSION ||
+      !Array.isArray(backup.entries)) {
+      throw new Error('This is not a supported Copy Pasta backup file.');
+    }
+
+    const seenIds = new Set();
+    return backup.entries.map((item, index) => {
+      if (!item || typeof item !== 'object' || Array.isArray(item) ||
+        typeof item.id !== 'string' || !item.id.trim() || item.id.length > 128 ||
+        typeof item.name !== 'string' || !item.name.trim() ||
+        item.name.trim().length > MAX_ENTRY_NAME_LENGTH ||
+        typeof item.content !== 'string') {
+        throw new Error(`Entry ${index + 1} has invalid or unsupported data.`);
+      }
+      const id = item.id.trim();
+      if (seenIds.has(id)) {
+        throw new Error(`The backup contains duplicate entry IDs (entry ${index + 1}).`);
+      }
+      seenIds.add(id);
+      const importedCategory = typeof item.category === 'string' ? item.category : '';
+      return {
+        id,
+        name: item.name.trim(),
+        content: sanitizeHtml(item.content),
+        category: Object.prototype.hasOwnProperty.call(CATEGORIES, importedCategory) &&
+          !REMOVED_CATEGORY_IDS.has(importedCategory) && categoryNames[importedCategory]
+          ? importedCategory
+          : '',
+        updatedAt: Number.isFinite(item.updatedAt) ? item.updatedAt : Date.now()
+      };
+    });
+  }
+
+  async function importBackupFile(file, mode) {
+    showBackupError('');
+    if (file.size > MAX_BACKUP_SIZE) {
+      showBackupError('The selected backup is too large to import (maximum 10 MB).');
+      return;
+    }
+
+    try {
+      const importedEntries = validateBackup(await file.text());
+      if (mode === 'replace') {
+        pendingImportEntries = importedEntries;
+        replaceConfirmMessage.textContent =
+          `This backup contains ${importedEntries.length} ${importedEntries.length === 1 ? 'entry' : 'entries'}. Replacing will remove all ${entries.length} current ${entries.length === 1 ? 'entry' : 'entries'}. This cannot be undone.`;
+        replaceError.hidden = true;
+        replaceConfirmDialog.hidden = false;
+        document.getElementById('confirmReplace').focus();
+        return;
+      }
+
+      const importedById = new Map(importedEntries.map((entry) => [entry.id, entry]));
+      const mergedEntries = [
+        ...importedEntries,
+        ...entries.filter((entry) => !importedById.has(entry.id))
+      ];
+      await storageSet({ [ENTRIES_KEY]: mergedEntries });
+      entries = mergedEntries;
+      renderEntries();
+      closeBackupDialog();
+      showStatus(`Backup merged (${importedEntries.length} imported ${importedEntries.length === 1 ? 'entry' : 'entries'}).`);
+    } catch (error) {
+      showBackupError(`Could not import backup: ${error.message}`);
+    }
+  }
+
+  async function confirmBackupReplacement() {
+    if (!pendingImportEntries) return;
+    const replacementEntries = pendingImportEntries;
+    const confirmButton = document.getElementById('confirmReplace');
+    confirmButton.disabled = true;
+    replaceError.hidden = true;
+    try {
+      await storageSet({ [ENTRIES_KEY]: replacementEntries });
+      entries = replacementEntries;
+      renderEntries();
+      closeBackupDialog();
+      showStatus(`Entries replaced from backup (${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}).`);
+    } catch (error) {
+      replaceError.textContent = `Could not replace entries: ${error.message}`;
+      replaceError.hidden = false;
+      confirmButton.focus();
+    } finally {
+      confirmButton.disabled = false;
+    }
   }
 
   function showStatus(message, isError = false) {
@@ -562,7 +735,9 @@
             const removedCategory = REMOVED_CATEGORY_IDS.has(storedCategory);
             const category = removedCategory
               ? ''
-              : CATEGORIES[item.category] ? item.category : CATEGORIES[item.tag] ? item.tag : '';
+              : Object.prototype.hasOwnProperty.call(CATEGORIES, item.category)
+                ? item.category
+                : Object.prototype.hasOwnProperty.call(CATEGORIES, item.tag) ? item.tag : '';
             return {
               id: item.id,
               name: item.name,
@@ -644,6 +819,54 @@
   }
 
   document.getElementById('addEntry').addEventListener('click', () => openEditor());
+  document.getElementById('openBackup').addEventListener('click', openBackupDialog);
+  document.getElementById('exportBackup').addEventListener('click', exportBackup);
+  document.getElementById('importBackup').addEventListener('click', () => chooseBackupFile('merge'));
+  document.getElementById('replaceBackup').addEventListener('click', () => chooseBackupFile('replace'));
+  document.getElementById('closeBackup').addEventListener('click', () => closeBackupDialog());
+  backupFileInput.addEventListener('change', () => {
+    const file = backupFileInput.files?.[0];
+    if (file) importBackupFile(file, pendingImportMode);
+  });
+  backupDialog.addEventListener('click', (event) => {
+    if (event.target === backupDialog) closeBackupDialog();
+  });
+  backupDialog.addEventListener('keydown', (event) => {
+    const controls = [
+      document.getElementById('exportBackup'),
+      document.getElementById('importBackup'),
+      document.getElementById('replaceBackup'),
+      document.getElementById('closeBackup')
+    ];
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeBackupDialog();
+    } else if (event.key === 'Tab') {
+      const index = controls.indexOf(document.activeElement);
+      const nextIndex = event.shiftKey
+        ? (index <= 0 ? controls.length - 1 : index - 1)
+        : (index < 0 || index === controls.length - 1 ? 0 : index + 1);
+      event.preventDefault();
+      controls[nextIndex].focus();
+    }
+  });
+  document.getElementById('cancelReplace').addEventListener('click', () => closeReplaceConfirm());
+  document.getElementById('confirmReplace').addEventListener('click', confirmBackupReplacement);
+  replaceConfirmDialog.addEventListener('click', (event) => {
+    if (event.target === replaceConfirmDialog) closeReplaceConfirm();
+  });
+  replaceConfirmDialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeReplaceConfirm();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      const cancel = document.getElementById('cancelReplace');
+      const confirm = document.getElementById('confirmReplace');
+      if (document.activeElement === cancel) confirm.focus();
+      else cancel.focus();
+    }
+  });
   document.getElementById('cancelEdit').addEventListener('click', closeEditor);
   entryForm.addEventListener('submit', saveEntry);
   categoryForm.addEventListener('submit', saveCategoryNames);
