@@ -8,6 +8,10 @@
   const CATEGORY_NAMES_KEY = 'simple_copy_pasta_category_names_v1';
   const BACKUP_FORMAT = 'simple-browser-copy-pasta';
   const BACKUP_VERSION = 1;
+  const ENCRYPTED_BACKUP_FORMAT = 'simple-browser-copy-pasta-encrypted';
+  const ENCRYPTED_BACKUP_VERSION = 1;
+  const BACKUP_KDF_ITERATIONS = 600000;
+  const BACKUP_PASSWORD_MIN_LENGTH = 12;
   const MAX_BACKUP_SIZE = 10 * 1024 * 1024;
   const MAX_ENTRY_NAME_LENGTH = 50;
   const MAX_PREVIEW_LENGTH = 180;
@@ -59,6 +63,14 @@
   const replaceConfirmDialog = document.getElementById('replaceConfirmDialog');
   const replaceConfirmMessage = document.getElementById('replaceConfirmMessage');
   const replaceError = document.getElementById('replaceError');
+  const backupPasswordDialog = document.getElementById('backupPasswordDialog');
+  const backupPasswordForm = document.getElementById('backupPasswordForm');
+  const backupPassword = document.getElementById('backupPassword');
+  const backupPasswordConfirm = document.getElementById('backupPasswordConfirm');
+  const backupPasswordConfirmGroup = document.getElementById('backupPasswordConfirmGroup');
+  const backupPasswordDescription = document.getElementById('backupPasswordDescription');
+  const backupPasswordError = document.getElementById('backupPasswordError');
+  const submitBackupPassword = document.getElementById('submitBackupPassword');
   const categoryForm = document.getElementById('categoryForm');
   const categoryError = document.getElementById('categoryError');
   const cancelCategories = document.getElementById('cancelCategories');
@@ -79,7 +91,9 @@
   let pendingCategoryNames = null;
   let pendingDisabledCategories = [];
   let pendingImportEntries = null;
+  let pendingEncryptedBackup = null;
   let pendingImportMode = 'merge';
+  let backupPasswordMode = null;
   let replaceStage = 'choose-file';
   let themeAnimationTimeout = null;
   let mascotTimer = null;
@@ -115,10 +129,47 @@
     document.getElementById('exportBackup').focus();
   }
 
+  function openBackupPasswordDialog(mode, encryptedBackup = null) {
+    backupPasswordMode = mode;
+    pendingEncryptedBackup = encryptedBackup;
+    backupPasswordForm.reset();
+    backupPasswordError.hidden = true;
+    const isExport = mode === 'export';
+    backupPasswordConfirmGroup.hidden = !isExport;
+    backupPasswordConfirm.required = isExport;
+    document.getElementById('backupPasswordTitle').textContent = isExport
+      ? 'Protect backup with a password'
+      : 'Unlock encrypted backup';
+    backupPasswordDescription.textContent = isExport
+      ? `Use a unique password of at least ${BACKUP_PASSWORD_MIN_LENGTH} characters. It encrypts the backup on this device and is not saved. If you forget it, the backup cannot be unlocked; there is no reset or recovery.`
+      : 'Enter the password used to encrypt this backup. If it is forgotten, the backup cannot be unlocked; there is no reset or recovery.';
+    submitBackupPassword.textContent = isExport ? 'Encrypt and download' : 'Unlock backup';
+    backupPasswordDialog.hidden = false;
+    backupPassword.focus();
+  }
+
+  function closeBackupPasswordDialog() {
+    const returnTo = backupPasswordMode === 'export'
+      ? 'exportEncryptedBackup'
+      : pendingEncryptedBackup?.mode === 'replace' ? 'replaceBackup' : 'importBackup';
+    backupPasswordDialog.hidden = true;
+    backupPasswordForm.reset();
+    backupPasswordError.hidden = true;
+    backupPasswordMode = null;
+    pendingEncryptedBackup = null;
+    if (!backupDialog.hidden) {
+      document.getElementById(returnTo).focus();
+    }
+  }
+
   function closeBackupDialog(restoreFocus = true) {
     backupDialog.hidden = true;
     replaceConfirmDialog.hidden = true;
+    backupPasswordDialog.hidden = true;
     pendingImportEntries = null;
+    pendingEncryptedBackup = null;
+    backupPasswordMode = null;
+    backupPasswordForm.reset();
     replaceStage = 'choose-file';
     showBackupError('');
     replaceError.hidden = true;
@@ -162,31 +213,141 @@
     backupFileInput.click();
   }
 
+  function createBackupData() {
+    return {
+      format: BACKUP_FORMAT,
+      version: BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      entries: entries.map(({ id, name, content, category, updatedAt }) => ({
+        id,
+        name,
+        content: sanitizeHtml(content),
+        category: Object.prototype.hasOwnProperty.call(CATEGORIES, category) ? category : '',
+        updatedAt: Number.isFinite(updatedAt) ? updatedAt : Date.now()
+      }))
+    };
+  }
+
+  function encodeBase64(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+    }
+    return btoa(binary);
+  }
+
+  function decodeBase64(value, expectedLength = null) {
+    if (typeof value !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) {
+      throw new Error('The encrypted backup has invalid encoding.');
+    }
+    const binary = atob(value);
+    if (expectedLength !== null && binary.length !== expectedLength) {
+      throw new Error('The encrypted backup has invalid encryption parameters.');
+    }
+    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  }
+
+  function backupAdditionalData() {
+    return new TextEncoder().encode(
+      `${ENCRYPTED_BACKUP_FORMAT}:${ENCRYPTED_BACKUP_VERSION}:PBKDF2-SHA-256:${BACKUP_KDF_ITERATIONS}:AES-256-GCM`
+    );
+  }
+
+  async function deriveBackupKey(password, salt, usages) {
+    if (!globalThis.crypto?.subtle) throw new Error('Secure encryption is not available in this browser.');
+    const passwordKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: BACKUP_KDF_ITERATIONS },
+      passwordKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      usages
+    );
+  }
+
+  async function encryptBackup(data, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveBackupKey(password, salt, ['encrypt']);
+    const plaintext = new TextEncoder().encode(JSON.stringify(data));
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv, additionalData: backupAdditionalData(), tagLength: 128 },
+      key,
+      plaintext
+    );
+    return {
+      format: ENCRYPTED_BACKUP_FORMAT,
+      version: ENCRYPTED_BACKUP_VERSION,
+      kdf: {
+        name: 'PBKDF2',
+        hash: 'SHA-256',
+        iterations: BACKUP_KDF_ITERATIONS,
+        salt: encodeBase64(salt)
+      },
+      cipher: {
+        name: 'AES-256-GCM',
+        iv: encodeBase64(iv)
+      },
+      ciphertext: encodeBase64(new Uint8Array(ciphertext))
+    };
+  }
+
+  function validateEncryptedBackup(backup) {
+    if (!backup || typeof backup !== 'object' || Array.isArray(backup) ||
+      backup.format !== ENCRYPTED_BACKUP_FORMAT || backup.version !== ENCRYPTED_BACKUP_VERSION ||
+      !backup.kdf || backup.kdf.name !== 'PBKDF2' || backup.kdf.hash !== 'SHA-256' ||
+      backup.kdf.iterations !== BACKUP_KDF_ITERATIONS ||
+      !backup.cipher || backup.cipher.name !== 'AES-256-GCM' ||
+      typeof backup.ciphertext !== 'string' || backup.ciphertext.length > MAX_BACKUP_SIZE * 2) {
+      throw new Error('This is not a supported encrypted Copy Pasta backup.');
+    }
+    const salt = decodeBase64(backup.kdf.salt, 16);
+    const iv = decodeBase64(backup.cipher.iv, 12);
+    const ciphertext = decodeBase64(backup.ciphertext);
+    if (ciphertext.length < 16 || ciphertext.length > MAX_BACKUP_SIZE) {
+      throw new Error('The encrypted backup has invalid or oversized data.');
+    }
+    return { salt, iv, ciphertext };
+  }
+
+  async function decryptBackup(backup, password) {
+    const { salt, iv, ciphertext } = validateEncryptedBackup(backup);
+    const key = await deriveBackupKey(password, salt, ['decrypt']);
+    const plaintext = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv, additionalData: backupAdditionalData(), tagLength: 128 },
+      key,
+      ciphertext
+    );
+    return new TextDecoder('utf-8', { fatal: true }).decode(plaintext);
+  }
+
+  function downloadBackup(data, encrypted) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    if (blob.size > MAX_BACKUP_SIZE) {
+      throw new Error('This backup exceeds the 10 MB import limit. Export fewer entries or use smaller snippets.');
+    }
+    const url = URL.createObjectURL(blob);
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = `simple-browser-copy-pasta-${encrypted ? 'encrypted-' : ''}backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(download);
+    download.click();
+    download.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    closeBackupDialog();
+    showStatus(`${encrypted ? 'Password-protected backup' : 'Backup'} exported (${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}).`);
+  }
+
   function exportBackup() {
     try {
-      const backup = {
-        format: BACKUP_FORMAT,
-        version: BACKUP_VERSION,
-        exportedAt: new Date().toISOString(),
-        entries: entries.map(({ id, name, content, category, updatedAt }) => ({
-          id,
-          name,
-          content: sanitizeHtml(content),
-          category: Object.prototype.hasOwnProperty.call(CATEGORIES, category) ? category : '',
-          updatedAt: Number.isFinite(updatedAt) ? updatedAt : Date.now()
-        }))
-      };
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const download = document.createElement('a');
-      download.href = url;
-      download.download = `simple-browser-copy-pasta-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(download);
-      download.click();
-      download.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      closeBackupDialog();
-      showStatus(`Backup exported (${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}).`);
+      downloadBackup(createBackupData(), false);
     } catch (error) {
       showBackupError(`Could not export backup: ${error.message}`);
     }
@@ -234,16 +395,8 @@
     });
   }
 
-  async function importBackupFile(file, mode) {
-    showBackupError('');
-    if (file.size > MAX_BACKUP_SIZE) {
-      showBackupError('The selected backup is too large to import (maximum 10 MB).');
-      if (mode === 'replace') backupDialog.hidden = false;
-      return;
-    }
-
+  async function applyImportedEntries(importedEntries, mode) {
     try {
-      const importedEntries = validateBackup(await file.text());
       if (mode === 'replace') {
         pendingImportEntries = importedEntries;
         replaceStage = 'confirm';
@@ -256,7 +409,6 @@
         document.getElementById('confirmReplace').focus();
         return;
       }
-
       const importedById = new Map(importedEntries.map((entry) => [entry.id, entry]));
       const existingById = new Map(entries.map((entry) => [entry.id, entry]));
       const mergedEntries = [
@@ -274,6 +426,79 @@
     } catch (error) {
       if (mode === 'replace') backupDialog.hidden = false;
       showBackupError(`Could not import backup: ${error.message}`);
+    }
+  }
+
+  async function importBackupFile(file, mode) {
+    showBackupError('');
+    if (file.size > MAX_BACKUP_SIZE) {
+      showBackupError('The selected backup is too large to import (maximum 10 MB).');
+      if (mode === 'replace') backupDialog.hidden = false;
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      let documentData;
+      try {
+        documentData = JSON.parse(text);
+      } catch {
+        throw new Error('This file is not valid JSON.');
+      }
+      if (documentData && typeof documentData === 'object' &&
+        documentData.format === ENCRYPTED_BACKUP_FORMAT) {
+        validateEncryptedBackup(documentData);
+        openBackupPasswordDialog('import', { backup: documentData, mode });
+        return;
+      }
+      await applyImportedEntries(validateBackup(text), mode);
+    } catch (error) {
+      if (mode === 'replace') backupDialog.hidden = false;
+      showBackupError(`Could not import backup: ${error.message}`);
+    }
+  }
+
+  async function submitBackupPasswordForm(event) {
+    event.preventDefault();
+    const password = backupPassword.value;
+    if (password.length < BACKUP_PASSWORD_MIN_LENGTH) {
+      backupPasswordError.textContent = `Use a password with at least ${BACKUP_PASSWORD_MIN_LENGTH} characters.`;
+      backupPasswordError.hidden = false;
+      backupPassword.focus();
+      return;
+    }
+
+    if (backupPasswordMode === 'export' && password !== backupPasswordConfirm.value) {
+      backupPasswordError.textContent = 'The passwords do not match.';
+      backupPasswordError.hidden = false;
+      backupPasswordConfirm.focus();
+      return;
+    }
+
+    const mode = backupPasswordMode;
+    const encryptedBackup = pendingEncryptedBackup;
+    backupPassword.value = '';
+    backupPasswordConfirm.value = '';
+    submitBackupPassword.disabled = true;
+    backupPasswordError.hidden = true;
+    try {
+      if (mode === 'export') {
+        const envelope = await encryptBackup(createBackupData(), password);
+        downloadBackup(envelope, true);
+      } else if (mode === 'import' && encryptedBackup) {
+        const text = await decryptBackup(encryptedBackup.backup, password);
+        const importedEntries = validateBackup(text);
+        closeBackupPasswordDialog();
+        await applyImportedEntries(importedEntries, encryptedBackup.mode);
+      }
+    } catch (error) {
+      backupPasswordError.textContent = mode === 'import'
+        ? 'Could not unlock this backup. The password may be incorrect, or the file may be damaged.'
+        : `Could not encrypt backup: ${error.message}`;
+      backupPasswordError.hidden = false;
+      backupPassword.focus();
+    } finally {
+      submitBackupPassword.disabled = false;
     }
   }
 
@@ -859,6 +1084,9 @@
   document.getElementById('addEntry').addEventListener('click', () => openEditor());
   document.getElementById('openBackup').addEventListener('click', openBackupDialog);
   document.getElementById('exportBackup').addEventListener('click', exportBackup);
+  document.getElementById('exportEncryptedBackup').addEventListener('click', () => {
+    openBackupPasswordDialog('export');
+  });
   document.getElementById('importBackup').addEventListener('click', () => chooseBackupFile('merge'));
   document.getElementById('replaceBackup').addEventListener('click', () => chooseBackupFile('replace'));
   document.getElementById('closeBackup').addEventListener('click', () => closeBackupDialog());
@@ -872,6 +1100,7 @@
   backupDialog.addEventListener('keydown', (event) => {
     const controls = [
       document.getElementById('exportBackup'),
+      document.getElementById('exportEncryptedBackup'),
       document.getElementById('importBackup'),
       document.getElementById('replaceBackup'),
       document.getElementById('closeBackup')
@@ -880,6 +1109,27 @@
       event.preventDefault();
       closeBackupDialog();
     } else if (event.key === 'Tab') {
+      const index = controls.indexOf(document.activeElement);
+      const nextIndex = event.shiftKey
+        ? (index <= 0 ? controls.length - 1 : index - 1)
+        : (index < 0 || index === controls.length - 1 ? 0 : index + 1);
+      event.preventDefault();
+      controls[nextIndex].focus();
+    }
+  });
+  document.getElementById('cancelBackupPassword').addEventListener('click', closeBackupPasswordDialog);
+  backupPasswordForm.addEventListener('submit', submitBackupPasswordForm);
+  backupPasswordDialog.addEventListener('click', (event) => {
+    if (event.target === backupPasswordDialog) closeBackupPasswordDialog();
+  });
+  backupPasswordDialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeBackupPasswordDialog();
+    } else if (event.key === 'Tab') {
+      const controls = backupPasswordConfirmGroup.hidden
+        ? [backupPassword, document.getElementById('cancelBackupPassword'), submitBackupPassword]
+        : [backupPassword, backupPasswordConfirm, document.getElementById('cancelBackupPassword'), submitBackupPassword];
       const index = controls.indexOf(document.activeElement);
       const nextIndex = event.shiftKey
         ? (index <= 0 ? controls.length - 1 : index - 1)

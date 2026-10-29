@@ -389,6 +389,7 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
   background: rgba(0, 0, 0, 0.42);
 }
 .nested-dialog { z-index: 3; }
+.password-dialog-backdrop { z-index: 4; }
 .dialog-backdrop[hidden] { display: none; }
 .confirm-dialog {
   width: 100%;
@@ -406,6 +407,11 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
 .backup-actions { display: grid; gap: 8px; margin-top: 16px; }
 .backup-actions .button { width: 100%; text-align: left; }
 .backup-actions .button.danger { border-color: var(--danger); }
+.backup-warning { margin: 12px 0 0; padding: 9px 10px; border: 1px solid rgba(180, 35, 24, 0.25); border-radius: 7px; color: var(--danger); background: var(--surface); font-size: 11px; line-height: 1.4; }
+.password-dialog { max-height: calc(100vh - 36px); overflow-y: auto; }
+.password-dialog form { margin-top: 12px; }
+.password-dialog .field-label:first-child { margin-top: 0; }
+.password-dialog input { display: block; width: 100%; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .delete-confirm { border-color: var(--danger); color: #ffffff; background: var(--danger); }
 .delete-confirm:hover { border-color: var(--danger); color: var(--danger); background: var(--bg); }

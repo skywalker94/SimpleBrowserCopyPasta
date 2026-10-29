@@ -279,7 +279,7 @@
             </article>
             <article class="feature">
               <div class="feature-icon" aria-hidden="true">🗃️</div>
-              <div><h3>Portable JSON backups</h3><p>Export entries or merge a backup: matching snippets get the backed-up name and content while keeping their local category. Replacing asks for confirmation before file selection and again before changes are applied.</p></div>
+              <div><h3>Portable JSON backups</h3><p>Export plain or password-encrypted backups, then merge or replace entries. Matching snippets keep their local category, and replacement requires two confirmations.</p></div>
             </article>
             <article class="feature">
               <div class="feature-icon" aria-hidden="true">🗂️</div>
@@ -315,10 +315,13 @@
                 </div>
               </div>
               <div class="mock-filters" aria-label="Example category filters">
-                <span class="mock-filter active">All <span>3</span></span>
-                <span class="mock-filter">None <span>0</span></span>
+                <span class="mock-filter active">All <span>5</span></span>
+                <span class="mock-filter">None <span>1</span></span>
                 <span class="mock-filter"><span class="mock-dot" style="--dot-color:#3b82f6"></span>Work <span>1</span></span>
+                <span class="mock-filter"><span class="mock-dot" style="--dot-color:#c49a2a"></span>Ideas <span>1</span></span>
+                <span class="mock-filter"><span class="mock-dot" style="--dot-color:#a855f7"></span>Social <span>0</span></span>
                 <span class="mock-filter"><span class="mock-dot" style="--dot-color:#f97316"></span>Follow-up <span>1</span></span>
+                <span class="mock-filter"><span class="mock-dot" style="--dot-color:#22a06b"></span>Personal <span>1</span></span>
                 <span class="mock-filter-settings" aria-hidden="true">⚙</span>
               </div>
               <div class="mock-entries">
@@ -346,6 +349,18 @@
                     <span class="snippet-button danger">Delete</span>
                   </div>
                 </article>
+                <article class="snippet" style="--snippet-color:#c49a2a">
+                  <div class="snippet-top">
+                    <h3 class="snippet-name" title="Weekend reading list">Weekend reading list</h3>
+                    <span class="snippet-category">Ideas</span>
+                  </div>
+                  <p class="snippet-text">A few articles and books to explore when there’s time…</p>
+                  <div class="snippet-actions" aria-label="Example entry actions">
+                    <span class="snippet-button primary">Copy</span>
+                    <span class="snippet-button">Edit</span>
+                    <span class="snippet-button danger">Delete</span>
+                  </div>
+                </article>
                 <article class="snippet" style="--snippet-color:#22a06b">
                   <div class="snippet-top">
                     <h3 class="snippet-name" title="A little reminder">A little reminder</h3>
@@ -358,11 +373,22 @@
                     <span class="snippet-button danger">Delete</span>
                   </div>
                 </article>
+                <article class="snippet" style="--snippet-color:#94a3b8">
+                  <div class="snippet-top">
+                    <h3 class="snippet-name" title="Quick thank-you">Quick thank-you</h3>
+                  </div>
+                  <p class="snippet-text">Thanks for taking the time to help me out! 🙏</p>
+                  <div class="snippet-actions" aria-label="Example entry actions">
+                    <span class="snippet-button primary">Copy</span>
+                    <span class="snippet-button">Edit</span>
+                    <span class="snippet-button danger">Delete</span>
+                  </div>
+                </article>
               </div>
             </div>
             <div class="mock-footer">Your snippets never leave this browser.</div>
           </div>
-          <p class="sample-caption">A few sample entries show how categories, previews, and quick actions fit together in the popup.</p>
+          <p class="sample-caption">Five example entries show the category filters, compact previews, and quick actions in a realistic popup view.</p>
         </aside>
       </div>
 
@@ -381,7 +407,7 @@
         <aside class="card privacy-card" aria-labelledby="privacy-title">
           <h2 id="privacy-title">Local and lightweight</h2>
           <div class="privacy-point"><strong>Stored on this browser</strong><p>Entries, category names, and theme use <code>chrome.storage.local</code>.</p></div>
-          <div class="privacy-point"><strong>Backups are yours</strong><p>JSON backups contain entries, not preferences. They are unencrypted and downloaded locally, so store them with care.</p></div>
+          <div class="privacy-point"><strong>Backups are yours</strong><p>Choose plain JSON or password encryption. Keep the unique password safe: encrypted backups cannot be recovered if you forget it.</p></div>
           <div class="privacy-point"><strong>No cloud or tracking</strong><p>No analytics, remote scripts, or server-side snippet storage.</p></div>
           <div class="privacy-point"><strong>Only what it needs</strong><p>The extension uses local storage and clipboard access for its features.</p></div>
         </aside>
