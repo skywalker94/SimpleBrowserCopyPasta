@@ -2,6 +2,8 @@
 
 A lightweight Chrome extension for keeping reusable text snippets close at hand. Save named entries with basic rich-text formatting and emoji, preview them at a glance, and copy their contents when needed.
 
+**Current release: 2.0.0** · [Download from GitHub Releases](https://github.com/skywalker94/SimpleBrowserCopyPasta/releases)
+
 Project: [GitHub repository](https://github.com/skywalker94/SimpleBrowserCopyPasta) · [GitHub Pages site](https://skywalker94.github.io/SimpleBrowserCopyPasta/)
 
 ## Website
@@ -24,6 +26,12 @@ The static landing page is [`index.html`](./index.html). To publish it, enable G
 - Export entries as plain JSON or an optional password-encrypted JSON backup. Imports merge by default: matching entry IDs update the name and content while retaining the local category, and new entries are added. Replacing all entries requires confirmation before file selection and again before changes are applied.
 - Choose a light or dark theme.
 - Store entries and preferences in `chrome.storage.local` on this browser instance. Nothing is sent to a cloud service.
+
+## Version 2.0.0 and backup compatibility
+
+Version 2.0.0 adds JSON backup import/export, including optional password-encrypted backups. Earlier versions do not support importing these backups; encrypted backups require version 2.0.0 or later.
+
+To keep entries already stored by an older installation, update or reload the extension in place instead of uninstalling it first. Chrome may remove an extension's local data when it is uninstalled. If you have already exported a backup, update to 2.0.0 or later before importing it.
 
 ## Install for development
 
