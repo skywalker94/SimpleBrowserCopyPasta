@@ -65,7 +65,13 @@
             <h2>Your snippets</h2>
             <p class="muted">Quick access to reusable text.</p>
           </div>
-          <button id="addEntry" class="button primary" type="button">＋ New entry</button>
+          <div class="heading-actions">
+            <button id="openBackup" class="backup-button" type="button" aria-label="Import or export backup"
+              title="Import or export backup">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h6l2 2h9v9.75a1.25 1.25 0 0 1-1.25 1.25H4.75a1.25 1.25 0 0 1-1.25-1.25z"/><path d="M3.5 7.5V5.75A1.25 1.25 0 0 1 4.75 4.5h4l2 2h8.5a1.25 1.25 0 0 1 1.25 1.25V9.5"/></svg>
+            </button>
+            <button id="addEntry" class="button primary" type="button">＋ New</button>
+          </div>
         </div>
         <div id="categoryFilters" class="category-filters" role="group" aria-label="Filter snippets by category"></div>
         <div id="entryList" class="entry-list"></div>
@@ -154,6 +160,37 @@
       <div class="dialog-actions">
         <button id="cancelDisableCategory" class="button" type="button">Go back</button>
         <button id="confirmDisableCategory" class="button delete-confirm" type="button">Disable</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="backupDialog" class="dialog-backdrop" hidden>
+    <section class="confirm-dialog backup-dialog" role="dialog" aria-modal="true"
+      aria-labelledby="backupDialogTitle" aria-describedby="backupDialogDescription">
+      <h2 id="backupDialogTitle">Entries backup</h2>
+      <p id="backupDialogDescription" class="muted">Export your snippets to a JSON file, or import a backup. Imports merge by default, keeping local categories for matching entries. Replacing asks for confirmation before file selection and again before changes are applied.</p>
+      <div class="backup-actions">
+        <button id="exportBackup" class="button primary" type="button">Export JSON</button>
+        <button id="importBackup" class="button" type="button">Import JSON (merge)</button>
+        <button id="replaceBackup" class="button danger" type="button">Replace entries from JSON…</button>
+      </div>
+      <p id="backupError" class="dialog-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button id="closeBackup" class="button" type="button">Close</button>
+      </div>
+    </section>
+  </div>
+  <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
+
+  <div id="replaceConfirmDialog" class="dialog-backdrop nested-dialog" hidden>
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true"
+      aria-labelledby="replaceConfirmTitle" aria-describedby="replaceConfirmMessage">
+      <h2 id="replaceConfirmTitle">Replace all entries?</h2>
+      <p id="replaceConfirmMessage" class="muted"></p>
+      <p id="replaceError" class="dialog-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button id="cancelReplace" class="button" type="button">Cancel</button>
+        <button id="confirmReplace" class="button delete-confirm" type="button">Replace entries</button>
       </div>
     </section>
   </div>

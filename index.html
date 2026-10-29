@@ -104,25 +104,81 @@
     }
     .feature h3 { font-size: 14px; }
     .feature p, .muted { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
-    .sample-card { display: flex; flex-direction: column; gap: 14px; }
+    .sample-card { display: flex; flex-direction: column; gap: 13px; }
     .sample-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .popup-mock { overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #ffffff; box-shadow: 0 4px 14px rgba(16, 24, 40, 0.05); }
+    .mock-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #ffffff, #fbfdff); }
+    .mock-brand { display: flex; min-width: 0; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; }
+    .mock-brand img { width: 23px; height: 23px; object-fit: contain; }
+    .mock-theme { flex: 0 0 auto; color: var(--muted); font-size: 12px; }
+    .mock-content { padding: 10px; }
+    .mock-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .mock-heading h3 { font-size: 14px; }
+    .mock-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 10px; }
+    .mock-controls { display: flex; flex: 0 0 auto; align-items: center; gap: 5px; }
+    .mock-icon-button { display: grid; width: 27px; height: 27px; place-items: center; padding: 0; border: 1px solid var(--border); border-radius: 7px; color: var(--accent); background: #ffffff; font-size: 15px; }
+    .mock-new-button { min-height: 27px; padding: 4px 8px; border: 1px solid var(--accent); border-radius: 7px; color: #ffffff; background: var(--accent); font-size: 10px; font-weight: 650; white-space: nowrap; }
+    .mock-filters { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 8px; }
+    .mock-filter { display: inline-flex; align-items: center; gap: 4px; min-height: 22px; padding: 3px 7px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: #ffffff; font-size: 9px; white-space: nowrap; }
+    .mock-filter.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .mock-filter-settings { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--muted); font-size: 11px; }
+    .mock-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dot-color); }
+    .mock-entries { display: grid; gap: 6px; }
     .snippet {
-      padding: 14px;
+      min-width: 0;
+      padding: 8px 9px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #f8fafc;
-    }
-    .snippet-name { margin: 0; font-size: 14px; }
-    .snippet-text { margin: 9px 0 12px; color: #475569; font-size: 13px; line-height: 1.55; }
-    .fake-copy {
-      display: inline-flex;
-      padding: 6px 10px;
+      border-left: 3px solid var(--snippet-color);
       border-radius: 7px;
-      color: #ffffff;
-      background: var(--accent);
-      font-size: 12px;
-      font-weight: 650;
+      background: #ffffff;
     }
+    .snippet-top { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 8px; }
+    .snippet-name {
+      min-width: 0;
+      overflow: hidden;
+      margin: 0;
+      font-size: 13px;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .snippet-category {
+      flex: 0 0 auto;
+      max-width: 120px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .snippet-text {
+      display: -webkit-box;
+      overflow: hidden;
+      margin: 4px 0 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+    }
+    .snippet-actions { display: flex; justify-content: flex-end; gap: 5px; }
+    .snippet-button {
+      min-height: 26px;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--fg);
+      background: #ffffff;
+      font: inherit;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .snippet-button.primary { border-color: var(--accent); color: #ffffff; background: var(--accent); }
+    .snippet-button.danger { color: #b42318; }
+    .snippet-button { display: inline-flex; align-items: center; }
+    .mock-footer { padding: 6px 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 9px; text-align: center; }
     .sample-caption { margin: auto 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
     .install {
       display: grid;
@@ -222,6 +278,10 @@
               <div><h3>Quick copy & control</h3><p>Copy rich text or plain text, edit saved entries, and confirm before deleting non-empty snippets.</p></div>
             </article>
             <article class="feature">
+              <div class="feature-icon" aria-hidden="true">🗃️</div>
+              <div><h3>Portable JSON backups</h3><p>Export entries or merge a backup: matching snippets get the backed-up name and content while keeping their local category. Replacing asks for confirmation before file selection and again before changes are applied.</p></div>
+            </article>
+            <article class="feature">
               <div class="feature-icon" aria-hidden="true">🗂️</div>
               <div><h3>Categories that fit</h3><p>Filter by Work, Ideas, Social, Follow-up, or Personal. Rename or hide categories, or leave an entry uncategorised.</p></div>
             </article>
@@ -238,12 +298,71 @@
 
         <aside class="card sample-card" aria-label="Example saved entry">
           <span class="sample-label">A glimpse inside</span>
-          <div class="snippet">
-            <h3 class="snippet-name">A friendly follow-up</h3>
-            <p class="snippet-text"><strong>Hi there!</strong> Just checking in on this. Whenever you have a moment, let me know what you think. 😊<br><br>Thanks so much!</p>
-            <span class="fake-copy">Copy</span>
+          <div class="popup-mock" aria-label="Illustration of the extension popup">
+            <div class="mock-header">
+              <div class="mock-brand"><img src="images/logo_64.png" alt="" />Copy Pasta</div>
+              <span class="mock-theme" aria-hidden="true">☀️ ◉</span>
+            </div>
+            <div class="mock-content">
+              <div class="mock-heading">
+                <div>
+                  <h3>Your snippets</h3>
+                  <p class="mock-subtitle">Quick access to reusable text.</p>
+                </div>
+                <div class="mock-controls" aria-hidden="true">
+                  <span class="mock-icon-button" title="Import or export backup">▱</span>
+                  <span class="mock-new-button">＋ New</span>
+                </div>
+              </div>
+              <div class="mock-filters" aria-label="Example category filters">
+                <span class="mock-filter active">All <span>3</span></span>
+                <span class="mock-filter">None <span>0</span></span>
+                <span class="mock-filter"><span class="mock-dot" style="--dot-color:#3b82f6"></span>Work <span>1</span></span>
+                <span class="mock-filter"><span class="mock-dot" style="--dot-color:#f97316"></span>Follow-up <span>1</span></span>
+                <span class="mock-filter-settings" aria-hidden="true">⚙</span>
+              </div>
+              <div class="mock-entries">
+                <article class="snippet" style="--snippet-color:#f97316">
+                  <div class="snippet-top">
+                    <h3 class="snippet-name" title="A friendly follow-up">A friendly follow-up</h3>
+                    <span class="snippet-category">Follow-up</span>
+                  </div>
+                  <p class="snippet-text" title="Hi there! Just checking in on this. Whenever you have a moment, let me know what you think. 😊">Hi there! Just checking in on this. Whenever you have a moment, let me know what you think. 😊 Thanks so much!</p>
+                  <div class="snippet-actions" aria-label="Example entry actions">
+                    <span class="snippet-button primary">Copy</span>
+                    <span class="snippet-button">Edit</span>
+                    <span class="snippet-button danger">Delete</span>
+                  </div>
+                </article>
+                <article class="snippet" style="--snippet-color:#3b82f6">
+                  <div class="snippet-top">
+                    <h3 class="snippet-name" title="Meeting notes template">Meeting notes template</h3>
+                    <span class="snippet-category">Work</span>
+                  </div>
+                  <p class="snippet-text">Agenda, decisions, and next steps from our meeting…</p>
+                  <div class="snippet-actions" aria-label="Example entry actions">
+                    <span class="snippet-button primary">Copy</span>
+                    <span class="snippet-button">Edit</span>
+                    <span class="snippet-button danger">Delete</span>
+                  </div>
+                </article>
+                <article class="snippet" style="--snippet-color:#22a06b">
+                  <div class="snippet-top">
+                    <h3 class="snippet-name" title="A little reminder">A little reminder</h3>
+                    <span class="snippet-category">Personal</span>
+                  </div>
+                  <p class="snippet-text">Take a breath, get some water, and keep going. 🌿</p>
+                  <div class="snippet-actions" aria-label="Example entry actions">
+                    <span class="snippet-button primary">Copy</span>
+                    <span class="snippet-button">Edit</span>
+                    <span class="snippet-button danger">Delete</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="mock-footer">Your snippets never leave this browser.</div>
           </div>
-          <p class="sample-caption">Give entries a useful name, see a short preview, and copy the complete text in one click.</p>
+          <p class="sample-caption">A few sample entries show how categories, previews, and quick actions fit together in the popup.</p>
         </aside>
       </div>
 
@@ -262,6 +381,7 @@
         <aside class="card privacy-card" aria-labelledby="privacy-title">
           <h2 id="privacy-title">Local and lightweight</h2>
           <div class="privacy-point"><strong>Stored on this browser</strong><p>Entries, category names, and theme use <code>chrome.storage.local</code>.</p></div>
+          <div class="privacy-point"><strong>Backups are yours</strong><p>JSON backups contain entries, not preferences. They are unencrypted and downloaded locally, so store them with care.</p></div>
           <div class="privacy-point"><strong>No cloud or tracking</strong><p>No analytics, remote scripts, or server-side snippet storage.</p></div>
           <div class="privacy-point"><strong>Only what it needs</strong><p>The extension uses local storage and clipboard access for its features.</p></div>
         </aside>
