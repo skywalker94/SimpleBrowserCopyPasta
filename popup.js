@@ -1042,7 +1042,7 @@
     face.textContent = faces[Math.floor(Math.random() * faces.length)];
     face.setAttribute('aria-label', `Dismiss ${isOwl ? 'owl' : 'cat'}`);
     face.title = `Click to dismiss this ${isOwl ? 'owl' : 'cat'}`;
-    face.style.setProperty('--mascot-x', `${8 + Math.random() * 84}%`);
+    face.style.setProperty('--mascot-x', `${16 + Math.random() * 68}%`);
     const duration = 2000 + Math.random() * 1000;
     face.style.setProperty('--mascot-duration', `${duration}ms`);
     face.addEventListener('click', dismissMascot);
