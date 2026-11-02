@@ -50,7 +50,7 @@
         </span>
         <label class="theme-control" title="Toggle light/dark theme">
           <span class="sr-only">Dark theme</span>
-          <input type="checkbox" id="themeToggle" />
+          <input type="checkbox" id="theme-toggle" />
           <span class="theme-slider" aria-hidden="true"></span>
         </label>
       </div>
@@ -59,39 +59,39 @@
     <main class="main">
       <div id="status" class="status" role="status" aria-live="polite"></div>
 
-      <section id="listView" aria-label="Saved entries">
+      <section id="list-view" aria-label="Saved entries">
         <div class="section-heading">
           <div>
             <h2>Your snippets</h2>
             <p class="muted">Quick access to reusable text.</p>
           </div>
           <div class="heading-actions">
-            <button id="openBackup" class="backup-button" type="button" aria-label="Import or export backup"
+            <button id="open-backup" class="backup-button" type="button" aria-label="Import or export backup"
               title="Import or export backup">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h6l2 2h9v9.75a1.25 1.25 0 0 1-1.25 1.25H4.75a1.25 1.25 0 0 1-1.25-1.25z"/><path d="M3.5 7.5V5.75A1.25 1.25 0 0 1 4.75 4.5h4l2 2h8.5a1.25 1.25 0 0 1 1.25 1.25V9.5"/></svg>
             </button>
-            <button id="addEntry" class="button primary" type="button">＋ New</button>
+            <button id="add-entry" class="button primary" type="button">＋ New</button>
           </div>
         </div>
-        <div id="categoryFilters" class="category-filters" role="group" aria-label="Filter snippets by category"></div>
-        <div id="entryList" class="entry-list"></div>
-        <p id="emptyState" class="empty-state" hidden>No snippets yet. Add one to get started.</p>
+        <div id="category-filters" class="category-filters" role="group" aria-label="Filter snippets by category"></div>
+        <div id="entry-list" class="entry-list"></div>
+        <p id="empty-state" class="empty-state" hidden>No snippets yet. Add one to get started.</p>
       </section>
 
-      <section id="editorView" aria-label="Edit snippet" hidden>
-        <form id="entryForm">
+      <section id="editor-view" aria-label="Edit snippet" hidden>
+        <form id="entry-form">
           <div class="section-heading editor-heading">
-            <h2 id="editorHeading">New entry</h2>
-            <button id="cancelEdit" class="button quiet" type="button">Cancel</button>
+            <h2 id="editor-heading">New entry</h2>
+            <button id="cancel-edit" class="button quiet" type="button">Cancel</button>
           </div>
-          <label class="field-label" for="entryName">Entry name</label>
-          <input id="entryName" class="name-input" type="text" maxlength="50"
+          <label class="field-label" for="entry-name">Entry name</label>
+          <input id="entry-name" class="name-input" type="text" maxlength="50"
             placeholder="e.g. Friendly email sign-off" required />
-          <label class="field-label" for="entryCategory">Category</label>
-          <select id="entryCategory" class="category-select">
+          <label class="field-label" for="entry-category">Category</label>
+          <select id="entry-category" class="category-select">
             <option value="">None</option>
           </select>
-          <label class="field-label" id="contentLabel">Text</label>
+          <label class="field-label" id="content-label">Text</label>
           <div class="toolbar" role="toolbar" aria-label="Text formatting">
             <button type="button" data-command="bold" aria-label="Bold" title="Bold"><strong>B</strong></button>
             <button type="button" data-command="italic" aria-label="Italic" title="Italic"><em>I</em></button>
@@ -101,8 +101,8 @@
             <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list">• List</button>
             <button type="button" data-command="insertOrderedList" aria-label="Numbered list" title="Numbered list">1. List</button>
           </div>
-          <div id="entryContent" class="content-editor" contenteditable="true" role="textbox"
-            aria-labelledby="contentLabel" aria-multiline="true" data-placeholder="Write or paste your text here. Emojis work too!"></div>
+          <div id="entry-content" class="content-editor" contenteditable="true" role="textbox"
+            aria-labelledby="content-label" aria-multiline="true" data-placeholder="Write or paste your text here. Emojis work too!"></div>
           <div class="editor-actions">
             <button class="button primary" type="submit">Save entry</button>
           </div>
@@ -115,106 +115,106 @@
     </footer>
   </div>
 
-  <div id="deleteDialog" class="dialog-backdrop" hidden>
+  <div id="delete-dialog" class="dialog-backdrop" hidden>
     <section class="confirm-dialog" role="alertdialog" aria-modal="true"
-      aria-labelledby="deleteDialogTitle" aria-describedby="deleteDialogMessage">
-      <h2 id="deleteDialogTitle">Delete entry?</h2>
-      <p id="deleteDialogMessage" class="muted"></p>
+      aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-message">
+      <h2 id="delete-dialog-title">Delete entry?</h2>
+      <p id="delete-dialog-message" class="muted"></p>
       <div class="dialog-actions">
-        <button id="cancelDelete" class="button" type="button">Cancel</button>
-        <button id="confirmDelete" class="button delete-confirm" type="button">Delete</button>
+        <button id="cancel-delete" class="button" type="button">Cancel</button>
+        <button id="confirm-delete" class="button delete-confirm" type="button">Delete</button>
       </div>
     </section>
   </div>
 
-  <div id="categoryDialog" class="dialog-backdrop" hidden>
+  <div id="category-dialog" class="dialog-backdrop" hidden>
     <section class="confirm-dialog category-dialog" role="dialog" aria-modal="true"
-      aria-labelledby="categoryDialogTitle">
-      <h2 id="categoryDialogTitle">Rename categories</h2>
+      aria-labelledby="category-dialog-title">
+      <h2 id="category-dialog-title">Rename categories</h2>
       <p class="muted">Rename a category, or leave its name blank to hide it. Hidden categories can be restored by naming them again.</p>
-      <form id="categoryForm">
-        <label class="field-label" for="categoryNameWork">Work category (blue)</label>
-        <input id="categoryNameWork" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameIdeas">Ideas category (gold / yellow)</label>
-        <input id="categoryNameIdeas" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameSocial">Social category (purple)</label>
-        <input id="categoryNameSocial" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNameFollowup">Follow-up category (orange)</label>
-        <input id="categoryNameFollowup" class="name-input category-name-input" type="text" maxlength="24" />
-        <label class="field-label" for="categoryNamePersonal">Personal category (green)</label>
-        <input id="categoryNamePersonal" class="name-input category-name-input" type="text" maxlength="24" />
-        <p id="categoryError" class="dialog-error" role="alert" hidden></p>
+      <form id="category-form">
+        <label class="field-label" for="category-name-work">Work category (blue)</label>
+        <input id="category-name-work" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="category-name-ideas">Ideas category (gold / yellow)</label>
+        <input id="category-name-ideas" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="category-name-social">Social category (purple)</label>
+        <input id="category-name-social" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="category-name-followup">Follow-up category (orange)</label>
+        <input id="category-name-followup" class="name-input category-name-input" type="text" maxlength="24" />
+        <label class="field-label" for="category-name-personal">Personal category (green)</label>
+        <input id="category-name-personal" class="name-input category-name-input" type="text" maxlength="24" />
+        <p id="category-error" class="dialog-error" role="alert" hidden></p>
         <div class="dialog-actions">
-          <button id="cancelCategories" class="button" type="button">Cancel</button>
+          <button id="cancel-categories" class="button" type="button">Cancel</button>
           <button class="button primary" type="submit">Save names</button>
         </div>
       </form>
     </section>
   </div>
 
-  <div id="disableCategoryDialog" class="dialog-backdrop nested-dialog" hidden>
+  <div id="disable-category-dialog" class="dialog-backdrop nested-dialog" hidden>
     <section class="confirm-dialog" role="alertdialog" aria-modal="true"
-      aria-labelledby="disableCategoryTitle" aria-describedby="disableCategoryMessage">
-      <h2 id="disableCategoryTitle">Disable categories?</h2>
-      <p id="disableCategoryMessage" class="muted"></p>
+      aria-labelledby="disable-category-title" aria-describedby="disable-category-message">
+      <h2 id="disable-category-title">Disable categories?</h2>
+      <p id="disable-category-message" class="muted"></p>
       <div class="dialog-actions">
-        <button id="cancelDisableCategory" class="button" type="button">Go back</button>
-        <button id="confirmDisableCategory" class="button delete-confirm" type="button">Disable</button>
+        <button id="cancel-disable-category" class="button" type="button">Go back</button>
+        <button id="confirm-disable-category" class="button delete-confirm" type="button">Disable</button>
       </div>
     </section>
   </div>
 
-  <div id="backupDialog" class="dialog-backdrop" hidden>
+  <div id="backup-dialog" class="dialog-backdrop" hidden>
     <section class="confirm-dialog backup-dialog" role="dialog" aria-modal="true"
-      aria-labelledby="backupDialogTitle" aria-describedby="backupDialogDescription">
-      <h2 id="backupDialogTitle">Entries backup</h2>
-      <p id="backupDialogDescription" class="muted">Export your snippets to a JSON file, or import a backup. Imports merge by default, keeping local categories for matching entries. Replacing asks for confirmation before file selection and again before changes are applied.</p>
+      aria-labelledby="backup-dialog-title" aria-describedby="backup-dialog-description">
+      <h2 id="backup-dialog-title">Entries backup</h2>
+      <p id="backup-dialog-description" class="muted">Export your snippets to a JSON file, or import a backup. Imports merge by default, keeping local categories for matching entries. Replacing asks for confirmation before file selection and again before changes are applied.</p>
       <div class="backup-actions">
-        <button id="exportBackup" class="button primary" type="button">Export JSON</button>
-        <button id="exportEncryptedBackup" class="button" type="button">Export password-protected JSON…</button>
-        <button id="importBackup" class="button" type="button">Import JSON (merge)</button>
-        <button id="replaceBackup" class="button danger" type="button">Replace entries from JSON…</button>
+        <button id="export-backup" class="button primary" type="button">Export JSON</button>
+        <button id="export-encrypted-backup" class="button" type="button">Export password-protected JSON…</button>
+        <button id="import-backup" class="button" type="button">Import JSON (merge)</button>
+        <button id="replace-backup" class="button danger" type="button">Replace entries from JSON…</button>
       </div>
       <p class="backup-warning"><strong>Password-protected backups:</strong> Use a unique password and keep it safe. If you forget it, the backup cannot be unlocked; there is no reset or recovery.</p>
-      <p id="backupError" class="dialog-error" role="alert" hidden></p>
+      <p id="backup-error" class="dialog-error" role="alert" hidden></p>
       <div class="dialog-actions">
-        <button id="closeBackup" class="button" type="button">Close</button>
+        <button id="close-backup" class="button" type="button">Close</button>
       </div>
     </section>
   </div>
-  <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
+  <input id="backup-file-input" type="file" accept=".json,application/json" hidden />
 
-  <div id="replaceConfirmDialog" class="dialog-backdrop nested-dialog" hidden>
+  <div id="replace-confirm-dialog" class="dialog-backdrop nested-dialog" hidden>
     <section class="confirm-dialog" role="alertdialog" aria-modal="true"
-      aria-labelledby="replaceConfirmTitle" aria-describedby="replaceConfirmMessage">
-      <h2 id="replaceConfirmTitle">Replace all entries?</h2>
-      <p id="replaceConfirmMessage" class="muted"></p>
-      <p id="replaceError" class="dialog-error" role="alert" hidden></p>
+      aria-labelledby="replace-confirm-title" aria-describedby="replace-confirm-message">
+      <h2 id="replace-confirm-title">Replace all entries?</h2>
+      <p id="replace-confirm-message" class="muted"></p>
+      <p id="replace-error" class="dialog-error" role="alert" hidden></p>
       <div class="dialog-actions">
-        <button id="cancelReplace" class="button" type="button">Cancel</button>
-        <button id="confirmReplace" class="button delete-confirm" type="button">Replace entries</button>
+        <button id="cancel-replace" class="button" type="button">Cancel</button>
+        <button id="confirm-replace" class="button delete-confirm" type="button">Replace entries</button>
       </div>
     </section>
   </div>
 
-  <div id="backupPasswordDialog" class="dialog-backdrop password-dialog-backdrop" hidden>
+  <div id="backup-password-dialog" class="dialog-backdrop password-dialog-backdrop" hidden>
     <section class="confirm-dialog password-dialog" role="dialog" aria-modal="true"
-      aria-labelledby="backupPasswordTitle" aria-describedby="backupPasswordDescription">
-      <h2 id="backupPasswordTitle">Protect backup with a password</h2>
-      <p id="backupPasswordDescription" class="muted"></p>
-      <form id="backupPasswordForm">
-        <label class="field-label" for="backupPassword">Backup password</label>
-        <input id="backupPassword" class="name-input" type="password" minlength="12" maxlength="1024"
+      aria-labelledby="backup-password-title" aria-describedby="backup-password-description">
+      <h2 id="backup-password-title">Protect backup with a password</h2>
+      <p id="backup-password-description" class="muted"></p>
+      <form id="backup-password-form">
+        <label class="field-label" for="backup-password">Backup password</label>
+        <input id="backup-password" class="name-input" type="password" minlength="12" maxlength="1024"
           autocomplete="new-password" required />
-        <div id="backupPasswordConfirmGroup">
-          <label class="field-label" for="backupPasswordConfirm">Confirm password</label>
-          <input id="backupPasswordConfirm" class="name-input" type="password" minlength="12" maxlength="1024"
+        <div id="backup-password-confirm-group">
+          <label class="field-label" for="backup-password-confirm">Confirm password</label>
+          <input id="backup-password-confirm" class="name-input" type="password" minlength="12" maxlength="1024"
             autocomplete="new-password" required />
         </div>
-        <p id="backupPasswordError" class="dialog-error" role="alert" hidden></p>
+        <p id="backup-password-error" class="dialog-error" role="alert" hidden></p>
         <div class="dialog-actions">
-          <button id="cancelBackupPassword" class="button" type="button">Cancel</button>
-          <button id="submitBackupPassword" class="button primary" type="submit">Encrypt and download</button>
+          <button id="cancel-backup-password" class="button" type="button">Cancel</button>
+          <button id="submit-backup-password" class="button primary" type="submit">Encrypt and download</button>
         </div>
       </form>
     </section>

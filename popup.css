@@ -152,8 +152,8 @@ body.theme-transition-light .theme-sun { animation: sun-rise 0.7s ease both; }
 
 .main { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; padding: 16px 14px 12px; }
 .status { flex: 0 0 auto; }
-#listView:not([hidden]) { display: flex; min-height: 0; flex: 1; flex-direction: column; }
-#editorView:not([hidden]) { min-height: 0; flex: 1; overflow-y: auto; scrollbar-color: var(--scrollbar-thumb) transparent; scrollbar-width: thin; }
+#list-view:not([hidden]) { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+#editor-view:not([hidden]) { min-height: 0; flex: 1; overflow-y: auto; scrollbar-color: var(--scrollbar-thumb) transparent; scrollbar-width: thin; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .section-heading .muted { margin: 3px 0 0; }
 .heading-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; }
