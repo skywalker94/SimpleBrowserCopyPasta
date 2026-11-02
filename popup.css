@@ -182,14 +182,18 @@ button {
 .star-one {
   top: 8px;
   left: 18%;
+
   --star-brightness: 0.48;
+
   animation: star-twinkle 4.8s ease-in-out 0.1s infinite;
 }
 
 .star-two {
   top: 26px;
   left: 37%;
+
   --star-brightness: 0.62;
+
   font-size: 10px;
   animation: star-twinkle 5.7s ease-in-out 2.65s infinite;
 }
@@ -197,7 +201,9 @@ button {
 .star-three {
   top: 7px;
   left: 59%;
+
   --star-brightness: 0.38;
+
   font-size: 11px;
   animation: star-twinkle 6.2s ease-in-out 0.35s infinite;
 }
@@ -205,7 +211,9 @@ button {
 .star-four {
   top: 25px;
   left: 75%;
+
   --star-brightness: 0.55;
+
   font-size: 10px;
   animation: star-twinkle 5.2s ease-in-out 3.9s infinite;
 }
@@ -213,7 +221,9 @@ button {
 .star-five {
   top: 8px;
   left: 88%;
+
   --star-brightness: 0.7;
+
   font-size: 13px;
   animation: star-twinkle 6.8s ease-in-out 0.5s infinite;
 }
@@ -221,7 +231,9 @@ button {
 .star-six {
   top: 32px;
   left: 52%;
+
   --star-brightness: 0.42;
+
   font-size: 9px;
   animation: star-twinkle 5.5s ease-in-out 3.85s infinite;
 }
@@ -229,7 +241,9 @@ button {
 .star-seven {
   top: 17px;
   left: 7%;
+
   --star-brightness: 0.58;
+
   font-size: 9px;
   animation: star-twinkle 6.4s ease-in-out 0.3s infinite;
 }
@@ -237,7 +251,9 @@ button {
 .star-eight {
   top: 5px;
   left: 29%;
+
   --star-brightness: 0.35;
+
   font-size: 10px;
   animation: star-twinkle 5.9s ease-in-out 2.95s infinite;
 }
@@ -245,7 +261,9 @@ button {
 .star-nine {
   top: 34px;
   left: 23%;
+
   --star-brightness: 0.64;
+
   font-size: 11px;
   animation: star-twinkle 6.6s ease-in-out 0.8s infinite;
 }
@@ -253,7 +271,9 @@ button {
 .star-ten {
   top: 18px;
   left: 46%;
+
   --star-brightness: 0.45;
+
   font-size: 9px;
   animation: star-twinkle 5.1s ease-in-out 3.57s infinite;
 }
@@ -261,7 +281,9 @@ button {
 .star-eleven {
   top: 32px;
   left: 67%;
+
   --star-brightness: 0.52;
+
   font-size: 10px;
   animation: star-twinkle 6.1s ease-in-out 0.2s infinite;
 }
@@ -269,7 +291,9 @@ button {
 .star-twelve {
   top: 5px;
   left: 80%;
+
   --star-brightness: 0.32;
+
   font-size: 8px;
   animation: star-twinkle 5.8s ease-in-out 3.25s infinite;
 }
@@ -277,7 +301,9 @@ button {
 .star-thirteen {
   top: 37px;
   left: 92%;
+
   --star-brightness: 0.6;
+
   font-size: 9px;
   animation: star-twinkle 6.9s ease-in-out 0.7s infinite;
 }
@@ -285,7 +311,9 @@ button {
 .star-fourteen {
   top: 36px;
   left: 13%;
+
   --star-brightness: 0.4;
+
   font-size: 9px;
   animation: star-twinkle 5.4s ease-in-out 2.7s infinite;
 }
@@ -293,7 +321,9 @@ button {
 .star-fifteen {
   top: 18px;
   left: 82%;
+
   --star-brightness: 0.68;
+
   font-size: 8px;
   animation: star-twinkle 6.3s ease-in-out 0.4s infinite;
 }
@@ -301,7 +331,9 @@ button {
 .star-sixteen {
   top: 14px;
   left: 67%;
+
   --star-brightness: 0.5;
+
   font-size: 8px;
   animation: star-twinkle 5.6s ease-in-out 3.73s infinite;
 }
